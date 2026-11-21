@@ -1,0 +1,992 @@
+<title>Veda Vidya</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#7a1f2b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700&display=swap">
+<style>
+/* Layout: single phone-width column; sticky top bar, scrolling view, fixed bottom tab bar. Maroon taken from the Parent Report. */
+:root{
+  --brand:#7a1f2b; --brand-2:#9b2c3b; --brand-soft:#f6e9eb; --on-brand:#ffffff;
+  --bg:#f5f1f2; --surface:#ffffff; --surface-2:#faf6f7; --fg:#21161a; --muted:#6e5f63; --line:#eadfe2;
+  --good:#2f7d4f; --good-soft:#e5f3ea; --warn:#b5761a; --warn-soft:#fbf0dd; --bad:#c0392b; --bad-soft:#fbe6e3;
+  --gold:#c9961a; --shadow:0 1px 2px rgba(60,20,30,.06),0 4px 14px rgba(60,20,30,.06);
+  --f-display:"Sora",ui-sans-serif,system-ui,sans-serif; --f-body:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --brand:#e3808e; --brand-2:#f09aa6; --brand-soft:#3a2026; --on-brand:#1b0f12;
+  --bg:#141012; --surface:#1e181a; --surface-2:#251e21; --fg:#f3ecee; --muted:#ab9a9f; --line:#352a2e;
+  --good:#5cc48a; --good-soft:#1b3326; --warn:#e2a64a; --warn-soft:#3a2d17; --bad:#f07264; --bad-soft:#3d1f1c;
+  --gold:#e3b54a; --shadow:none; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --brand:#e3808e; --brand-2:#f09aa6; --brand-soft:#3a2026; --on-brand:#1b0f12;
+  --bg:#141012; --surface:#1e181a; --surface-2:#251e21; --fg:#f3ecee; --muted:#ab9a9f; --line:#352a2e;
+  --good:#5cc48a; --good-soft:#1b3326; --warn:#e2a64a; --warn-soft:#3a2d17; --bad:#f07264; --bad-soft:#3d1f1c;
+  --gold:#e3b54a; --shadow:none; color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--brand)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:6px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+
+#app{max-width:480px;margin:0 auto;min-height:100%;background:var(--bg);position:relative;display:flex;flex-direction:column}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--brand);color:#fff;display:flex;align-items:center;gap:8px;
+  padding-block:10px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));min-height:56px}
+.topbar h1{font-size:17px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.brandmark{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.brandmark .logo{width:32px;height:32px;border-radius:9px;background:#fff;color:#7a1f2b;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:15px;flex:none}
+.brandmark small{display:block;font-size:11px;opacity:.8;font-weight:500;letter-spacing:.02em}
+.iconbtn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;position:relative;color:#fff;flex:none}
+.iconbtn:hover{background:rgba(255,255,255,.12)}
+.iconbtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.badge{position:absolute;top:4px;right:3px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#ffd166;color:#4a1018;font-size:11px;font-weight:700;display:grid;place-items:center;border:2px solid #7a1f2b}
+
+#view{flex:1;padding-block:16px 104px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px;min-width:0}
+#view.nopad-bottom{padding-bottom:16px}
+
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:20;background:var(--surface);border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 8px;font-size:11px;font-weight:600;color:var(--muted)}
+.tabbar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tabbar button[aria-current="page"]{color:var(--brand)}
+.tabbar button[aria-current="page"] .pill{background:var(--brand-soft)}
+.tabbar .pill{padding:3px 14px;border-radius:12px;display:grid;place-items:center}
+
+/* generic blocks */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);min-width:0}
+.card.flat{box-shadow:none}
+.section-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:4px}
+.section-h h2{font-size:16px}
+.section-h .link{font-size:13px;color:var(--brand);font-weight:600}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.row{display:flex;align-items:center;gap:12px;min-width:0}
+.grow{flex:1;min-width:0}
+.stack{display:flex;flex-direction:column;gap:12px}
+.stack-sm{display:flex;flex-direction:column;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--surface-2);border:1px solid var(--line);color:var(--fg);white-space:nowrap}
+.chip.good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.chip.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.chip.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.chip.brand{background:var(--brand-soft);color:var(--brand);border-color:transparent}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;border-radius:12px;font-weight:600;font-size:14px;background:var(--brand);color:var(--on-brand);min-height:44px}
+.btn:hover{background:var(--brand-2)}
+.btn.ghost{background:var(--surface);color:var(--brand);border:1.5px solid var(--brand)}
+.btn.ghost:hover{background:var(--brand-soft)}
+.btn.block{width:100%}
+.btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.list{display:flex;flex-direction:column}
+.list-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);text-align:left;width:100%;min-width:0}
+.list-item:last-child{border-bottom:0}
+.list-item .chev{width:18px;height:18px;flex:none;stroke:var(--muted);fill:none;stroke-width:2}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px}
+.seg button{padding:8px 6px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--brand);box-shadow:var(--shadow)}
+.hscroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
+.chipbtn{flex:none;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13px;font-weight:600;color:var(--muted)}
+.chipbtn[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.bar{height:8px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
+.bar > i{display:block;height:100%;border-radius:99px}
+.bars{display:flex;flex-direction:column;gap:10px}
+.barline{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}
+.barline .lbl{font-size:13px;min-width:0}
+.barline .val{font-size:13px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.barline .bar{grid-column:1 / -1}
+.empty{padding:24px;text-align:center;color:var(--muted)}
+
+/* student strip */
+.student{display:flex;align-items:center;gap:12px}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;flex:none}
+
+/* result hero */
+.result-hero{background:var(--brand);color:#fff;border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:14px;border:0}
+.result-hero .eyebrow{color:rgba(255,255,255,.75)}
+.result-hero h3{font-size:16px;color:#fff}
+.result-hero .score{font-family:var(--f-display);font-size:40px;font-weight:700;line-height:1}
+.result-hero .score small{font-size:18px;opacity:.75;font-weight:600}
+.result-hero .meta{display:flex;flex-wrap:wrap;gap:6px}
+.result-hero .meta span{font-size:12px;background:rgba(255,255,255,.14);padding:4px 10px;border-radius:99px}
+.result-hero .delta{display:inline-flex;align-items:center;gap:4px;background:#fff;color:#2f7d4f;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700}
+:root[data-theme="dark"] .result-hero{background:#5c1a24}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .result-hero{background:#5c1a24}}
+
+.chart-legend{display:flex;gap:16px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.chart-legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.chart svg{width:100%;height:auto;display:block}
+
+.exam-row .pct{font-family:var(--f-display);font-weight:700;font-size:16px}
+
+.report-card{display:flex;flex-direction:column;gap:12px}
+.report-card .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex:none}
+.report-card .ic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.report-card h3{font-size:15px}
+
+/* document (report / notes) view */
+.doc{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.doc-head{background:var(--brand);color:#fff;padding:16px 18px}
+.doc-head .eyebrow{color:rgba(255,255,255,.8)}
+.doc-head h2{font-size:18px;color:#fff;margin-top:4px}
+.doc-head p{font-size:13px;opacity:.85;margin-top:4px}
+:root[data-theme="dark"] .doc-head{background:#5c1a24}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .doc-head{background:#5c1a24}}
+.doc-body{padding:18px;display:flex;flex-direction:column;gap:18px}
+.doc-body h3{font-size:15px;color:var(--brand)}
+.doc-body ul{margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.doc-body li{font-size:14px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-weight:600}
+.callout{background:var(--brand-soft);border-left:4px solid var(--brand);padding:12px 14px;border-radius:0 10px 10px 0;font-size:14px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--surface-2);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+
+.topic{border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.topic.strong{border-left:4px solid var(--good)}
+.topic.weak{border-left:4px solid var(--bad)}
+.topic.weak.med{border-left-color:var(--warn)}
+.topic h4{margin:0;font-size:14px}
+.topic .action{background:var(--surface-2);border-radius:10px;padding:10px 12px;font-size:13px}
+.topic .action b{color:var(--brand)}
+
+/* question bank */
+.subj-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.subj{display:flex;flex-direction:column;gap:10px;align-items:flex-start;text-align:left;padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow)}
+.subj .dot{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;color:#fff;font-size:15px}
+.subj h3{font-size:15px}
+.q{border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--surface);display:flex;flex-direction:column;gap:10px}
+.q p{font-size:14px}
+.q .tags{display:flex;flex-wrap:wrap;gap:6px}
+.q .ask{align-self:flex-start;font-size:13px;color:var(--brand);font-weight:600;display:inline-flex;gap:6px;align-items:center}
+.q .ask svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2}
+.dl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dl{display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2)}
+.dl b{font-size:13px}
+.dl span{font-size:12px;color:var(--muted)}
+.dl svg{width:20px;height:20px;fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* attendance */
+.ring-wrap{display:flex;align-items:center;gap:18px}
+.ring{position:relative;width:118px;height:118px;flex:none}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .lbl{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .lbl b{font-family:var(--f-display);font-size:26px;display:block;line-height:1}
+.ring .lbl span{font-size:11px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:1fr;gap:8px;flex:1;min-width:0}
+.stat{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.stat b{font-variant-numeric:tabular-nums}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal .dow{font-size:11px;text-align:center;color:var(--muted);font-weight:600}
+.cal .d{aspect-ratio:1;border-radius:10px;display:grid;place-items:center;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;max-width:100%}
+.d.P{background:var(--good-soft);color:var(--good)}
+.d.A{background:var(--bad);color:#fff}
+.d.H{background:var(--warn-soft);color:var(--warn)}
+.d.N{background:var(--surface-2);color:var(--muted)}
+.d.F{background:transparent;color:var(--muted);border:1px dashed var(--line)}
+.d.today{outline:2px solid var(--brand);outline-offset:1px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:5px}
+.period{display:grid;grid-template-columns:84px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.period:last-child{border-bottom:0}
+.period .t{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.period h4{margin:0;font-size:14px}
+.event{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+.event:last-child{border-bottom:0}
+.datebox{border-radius:12px;text-align:center;padding:6px 0;background:var(--surface-2);border:1px solid var(--line)}
+.datebox b{display:block;font-family:var(--f-display);font-size:18px;line-height:1.1}
+.datebox span{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.event h4{margin:0;font-size:14px}
+
+/* dpp */
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;padding:14px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);width:100%}
+.opt .k{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.opt[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
+.opt[aria-pressed="true"] .k{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.progress-steps{display:flex;gap:4px}
+.progress-steps i{flex:1;height:5px;border-radius:3px;background:var(--line)}
+.progress-steps i.on{background:var(--brand)}
+.hint{background:var(--warn-soft);color:var(--fg);border-radius:12px;padding:12px 14px;font-size:14px}
+.big-score{font-family:var(--f-display);font-size:48px;font-weight:700;line-height:1;color:var(--brand)}
+
+/* chat */
+.chat{display:flex;flex-direction:column;gap:12px}
+.msg{max-width:86%;padding:11px 14px;border-radius:16px;font-size:14px;line-height:1.5}
+.msg.me{align-self:flex-end;background:var(--brand);color:var(--on-brand);border-bottom-right-radius:4px}
+.msg.ai{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.ai b{color:var(--brand)}
+.msg img{max-width:100%;border-radius:10px;display:block}
+.typing{display:inline-flex;gap:4px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.composer{position:fixed;left:50%;transform:translateX(-50%);width:100%;max-width:480px;bottom:calc(62px + env(safe-area-inset-bottom,0px));z-index:15;background:var(--bg);border-top:1px solid var(--line);
+  padding-block:10px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));display:flex;gap:8px;align-items:center}
+.composer input[type=text]{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:11px 16px}
+.roundbtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--surface);border:1px solid var(--line);color:var(--brand)}
+.roundbtn.primary{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.roundbtn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.suggest{display:flex;flex-direction:column;gap:8px}
+.suggest button{text-align:left;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface);font-size:14px;display:flex;gap:10px;align-items:center}
+.suggest button span.tag{margin-left:auto}
+
+/* notifications */
+.notif{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:14px;background:var(--surface);border:1px solid var(--line);text-align:left;width:100%}
+.notif.unread{border-color:var(--brand);background:var(--brand-soft)}
+.notif .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;background:var(--surface-2);color:var(--brand)}
+.notif .ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.notif h4{margin:0;font-size:14px}
+
+/* login */
+.login{min-height:100%;display:flex;flex-direction:column;background:var(--bg)}
+.login-hero{background:var(--brand);color:#fff;padding-block:calc(env(safe-area-inset-top,0px) + 48px) 56px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));margin-top:calc(-1 * env(safe-area-inset-top,0px))}
+.login-hero .logo{width:56px;height:56px;border-radius:16px;background:#fff;color:#7a1f2b;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:24px}
+.login-hero h1{color:#fff;font-size:26px;margin-top:20px}
+.login-hero p{opacity:.85;margin-top:6px;font-size:15px}
+.login-form{margin:-28px 16px 24px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:600}
+.field .inp{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.field .inp:focus-within{border-color:var(--brand)}
+.field input{flex:1;min-width:0;border:0;background:transparent;padding:12px 14px;outline:none}
+.field .eye{padding:0 12px;color:var(--muted);font-size:13px;font-weight:600}
+.err{color:var(--bad);font-size:13px;font-weight:500}
+.demo-hint{font-size:13px;background:var(--surface-2);border:1px dashed var(--line);border-radius:12px;padding:10px 12px;color:var(--muted)}
+.demo-hint code{font-family:ui-monospace,Menlo,monospace;color:var(--fg);font-weight:600}
+
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:.2s;z-index:50;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+@media print{
+  body::before,.topbar,.tabbar,.composer,.toast,.no-print{display:none!important}
+  body,#app{background:#fff!important;color:#000}
+  #view{padding:0!important}
+  .doc{border:0}
+  .doc-head{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+
+<div id="app"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================== DEMO DATA ============================== */
+const STUDENT = { name:"Aarav Sharma", first:"Aarav", cls:"VIII – E", roll:"21", initials:"AS", parent:"Mr. Rakesh Sharma", login:{user:"student", pass:"veda123"} };
+const TODAY = new Date(2026,10,21); // 21 Nov 2026
+
+const EXAMS = [
+ { id:"phy-oct", name:"Unit Test – Exploring Forces", short:"Physics UT", subject:"Physics", date:"2026-10-30", max:35, score:25, classAvg:63,
+   sections:[["Section A (MCQ / A–R)",5,6],["Section B (2-mark)",6,8],["Section C (3-mark)",7.5,12],["Section D (case-based)",2.5,4],["Section E (long answer)",4,5]],
+   overall:"Aarav scored 25 out of 35 (71.4%). His writing is a real strength: Q8, Q9 and Q14 earned full marks with clear, well-organised explanations, and his answer on zero error in Q12(b) was excellent. Marks were lost in a few specific places: Q5 and the weight calculation in Q7 were not attempted, the spring-balance scale in Q12(a) was misread, and five marks were lost on upthrust, where he explained floating through density but not through the water pushed aside. With a few careful corrections he can move into the 80s.",
+   wentWell:["Clear, complete written explanations: Q8, Q9 and Q14 are full-mark answers, with a good grasp of friction and electrostatic force.","Excellent explanation of zero error in Q12(b) and correct reasoning on a heavier object stretching the spring.","Correct and confident on definitions in upthrust (Q15iii, Q16a, Q16c)."],
+   workOn:["<b>Upthrust and water pushed aside:</b> explain floating through displaced water, not density alone (Q13, Q15ii, Q16b).","<b>Spring-balance scale:</b> one division = range ÷ number of divisions = 10 ÷ 20 = 0.5 N (Q12a).","<b>Force is not stored:</b> a heavy truck does not have more force “inside” it (Q10).","<b>Attempt every part:</b> Q5 and the weight calculation in Q7(b) were left blank (2 marks)."],
+   nextSteps:["Aarav follows a 14-day improvement plan of about 35–40 minutes a day (Day 7: weekly check; Day 14: 20-mark retest).","Daily DPPs in the app are built from his weak topics.","Faculty doubt-clearing sessions are built into the plan.","We will share the retest result with you after Day 14. Our target is at least 80%."],
+   helpHome:["<b>Daily routine:</b> keep one fixed 40-minute study slot at the same time each day, with the phone away.","<b>Homework without pressure:</b> check that each day's DPP is done, not the marks. Ask Aarav to teach you one idea in two minutes.","<b>Encourage understanding:</b> ask everyday “why” questions: why does a boat float but a coin sink?","<b>Track improvement:</b> compare Aarav only with his own earlier scores and celebrate small gains."],
+   conclusion:"Aarav writes clearly and confidently and has built a good base. By clearing the upthrust idea, correcting the spring-balance calculation and making sure no part is left blank, he can reach the 80s in his next test.",
+   strong:[{t:"Friction",q:"Q8, Q14",note:"Full marks with clear everyday examples."},{t:"Electrostatic force",q:"Q9",note:"Full marks; correct reasoning on charged objects."},{t:"Zero error of a spring balance",q:"Q12(b)",note:"Excellent, complete explanation."},{t:"Definitions in upthrust",q:"Q15(iii), Q16(a), Q16(c)",note:"Correct and confident."}],
+   weak:[{t:"Upthrust and displaced water",q:"Q13, Q15(ii), Q15(iv), Q16(b)",lost:5,pr:"High",why:"Explained floating through density only, not through the water pushed aside.",act:"Float/sink demo with an overflow can; one-to-one doubt session; 5 DPP questions a day for 5 days."},
+         {t:"Reading a spring-balance scale",q:"Q12(a)",lost:1,pr:"High",why:"Least count calculated the wrong way round (20 ÷ 10).",act:"Least-count drill: range ÷ divisions, with 6 practice readings in class."},
+         {t:"Parts left blank",q:"Q5, Q7(b)",lost:2,pr:"Medium",why:"Two parts not attempted, including the weight calculation.",act:"Marks-to-minutes rule and a 2-minute “before you hand in” check in every test."},
+         {t:"Force is not stored",q:"Q10",lost:1,pr:"Medium",why:"Agreed that a heavy truck has “more force inside”.",act:"Quick concept check in class: force acts only while objects interact."},
+         {t:"Naming all forces",q:"Q11",lost:1,pr:"Medium",why:"Named only one of the two forces acting.",act:"Free-body diagram practice: list every force before answering."}],
+   plan:[["Day 1–3","Upthrust and displaced water: demo, notes, DPP"],["Day 4–5","Spring-balance least count and readings"],["Day 6","Force is not stored; naming all forces"],["Day 7","Weekly check (10 marks)"],["Day 8–13","Mixed DPP and timed practice"],["Day 14","20-mark retest"]],
+   target:"80% or more in the Day 14 retest", faculty:"Physics Faculty" },
+ { id:"sci-sep", name:"Half-Yearly Examination – General Science", short:"Half-Yearly", subject:"Science", date:"2026-09-15", max:80, score:54, classAvg:60,
+   sections:[["Biology",20,28],["Chemistry",18,25],["Physics",16,27]],
+   overall:"Aarav scored 54 out of 80 (67.5%). Biology was his strongest part. Most marks were lost in Physics numericals and in experiment-reasoning questions.",
+   wentWell:["Cell structure and organelles answered well.","Good use of diagrams in Biology.","MCQs and matching were mostly correct."],
+   workOn:["<b>Net force:</b> add forces in the same direction, subtract opposing forces (Q32).","<b>SI units:</b> kelvin, m³ and kg/s (Q31).","<b>Observation vs inference:</b> write only what is seen, then the conclusion (Q18)."],
+   nextSteps:["Weekly numericals practice.","Observation–inference practice in lab periods."],
+   helpHome:["Keep a fixed daily study time.","Praise effort and progress, not only marks."],
+   conclusion:"A solid half-yearly with clear strengths in Biology. Physics numericals are the main area to build.",
+   strong:[{t:"Cell structure and organelles",q:"Q7, Q12",note:"Correct labelling and functions."},{t:"Mixtures",q:"Q16, Q17",note:"Clear classification."}],
+   weak:[{t:"Net force and free-body diagrams",q:"Q32",lost:3,pr:"High",why:"Confused the second pull with the net force.",act:"Tug-of-war FBDs with arrow lengths; add-and-subtract drills."},
+         {t:"SI units",q:"Q31",lost:2,pr:"High",why:"Wrote degree Celsius and litre as SI units.",act:"SI-unit flash cards and a quick quiz every class."},
+         {t:"Observation vs inference",q:"Q18",lost:2,pr:"Medium",why:"Wrote an observation that was not actually seen.",act:"Two-column observation / inference practice in the lab."}],
+   plan:[["Week 1","Net force and FBD practice"],["Week 2","SI units and conversions"],["Week 3","Observation–inference writing"],["Week 4","Timed sectional test"]],
+   target:"75% or more in the next Science test", faculty:"Science Faculty" },
+ { id:"mat-aug", name:"Unit Test – Rational Numbers & Linear Equations", short:"Maths UT", subject:"Maths", date:"2026-08-12", max:40, score:27, classAvg:61,
+   sections:[["Section A (MCQ)",8,10],["Section B (short answer)",11,15],["Section C (word problems)",8,15]],
+   overall:"Aarav scored 27 out of 40 (67.5%). He is accurate on properties of rational numbers. Word problems on linear equations need more practice.",
+   wentWell:["Properties of rational numbers: all correct.","Simple linear equations solved step by step."],
+   workOn:["<b>Word problems:</b> form the equation from the statement before solving.","<b>Number line:</b> mark rational numbers by dividing the unit into equal parts."],
+   nextSteps:["Three word problems a day for two weeks."],
+   helpHome:["Ask Aarav to explain one word problem to you each day."],
+   conclusion:"Good accuracy on basics. Practising word problems will lift his score.",
+   strong:[{t:"Properties of rational numbers",q:"Q1–Q6",note:"All correct."},{t:"Solving simple linear equations",q:"Q9, Q10",note:"Neat, step-by-step working."}],
+   weak:[{t:"Word problems on linear equations",q:"Q13, Q14, Q15",lost:7,pr:"High",why:"Could not form the equation from the statement.",act:"“Let x be…” framing practice; 3 word problems a day."},
+         {t:"Rational numbers on the number line",q:"Q11",lost:2,pr:"Medium",why:"Divided the unit into the wrong number of parts.",act:"Number-line drills with fractions."}],
+   plan:[["Week 1","Forming equations from statements"],["Week 2","Mixed word problems and retest"]],
+   target:"80% in the retest", faculty:"Maths Faculty" },
+ { id:"chem-jul", name:"Unit Test – Synthetic Fibres & Metals", short:"Chemistry UT", subject:"Chemistry", date:"2026-07-20", max:35, score:22, classAvg:58,
+   sections:[["Section A (MCQ)",6,8],["Section B (short answer)",9,15],["Section C (long answer)",7,12]],
+   overall:"Aarav scored 22 out of 35 (62.9%). He knows the types of fibres well. Reactivity of metals and the properties of metals and non-metals need revision.",
+   wentWell:["Types of synthetic fibres and their uses.","Plastics and the environment: good examples."],
+   workOn:["<b>Reactivity series:</b> which metal displaces which.","<b>Metals vs non-metals:</b> physical and chemical properties table."],
+   nextSteps:["Reactivity-series practice with displacement reactions."],
+   helpHome:["Ask Aarav to explain why iron gates are painted."],
+   conclusion:"A fair start. Revising the reactivity series will make a quick difference.",
+   strong:[{t:"Types of synthetic fibres",q:"Q1–Q5",note:"Correct uses and examples."}],
+   weak:[{t:"Reactivity series and displacement",q:"Q9, Q12",lost:5,pr:"High",why:"Unsure which metal displaces which.",act:"Displacement demo with copper sulphate and iron nail; reactivity ladder chart."},
+         {t:"Properties of metals and non-metals",q:"Q10, Q11",lost:4,pr:"Medium",why:"Mixed up malleability and ductility.",act:"Comparison table and 5-minute oral recall."}],
+   plan:[["Week 1","Reactivity series and displacement"],["Week 2","Properties table and retest"]],
+   target:"75% in the next Chemistry test", faculty:"Chemistry Faculty" }
+];
+
+const WELLBEING = {
+  session:"13 November 2026", letter:"18 November 2026", by:"Counsellor, Veda Vidya Institute",
+  good:["He follows most of what is taught and is motivated to study.","He is confident in his abilities and recovers quickly from a disappointing result.","He gets along very well with his classmates and has enough time to rest and relax."],
+  high:[["Support from parents",100],["Getting along with classmates",100],["Time to rest and relax",100],["Understanding lessons",75],["Confidence in his ability",75],["Motivation to study",75],["Bouncing back after a low mark",75],["Support from teachers",75],["Doubts cleared",75],["General wellbeing",75]],
+  low:[["Planning his study time",25],["Concentration in class",50],["Problem solving on his own",50],["Asking questions in class",50]],
+  support:[["Planning his study time","He told us he usually catches up by studying the day before an exam. We will help him make a weekly study plan."],["Concentration","He finds it hard at times to concentrate in class and is sometimes hesitant to ask questions. His teachers will check in with him during lessons."],["Maths and problem solving","He sometimes finds it hard to solve questions on his own. We will add Maths quizzes and group problem-solving."]],
+  home:["Help him keep a fixed daily study time, so revision is spread across the week.","Praise his effort and progress, not only his marks.","Encourage him to write down anything he did not understand and ask his teacher the next day."]
+};
+
+const SUBJECTS = [
+ { id:"phy", name:"Physics", color:"#7a1f2b", chapters:[
+   { n:1, name:"Force and Pressure",
+     summary:"A force is a push or a pull that comes from an interaction between objects. It can change speed, direction or shape. Pressure is force acting on unit area.",
+     points:["Force = push or pull; it acts only while objects interact. Force is not stored in an object.","Contact forces: muscular, friction. Non-contact forces: magnetic, electrostatic, gravitational.","Net force: add forces in the same direction, subtract opposing forces.","Pressure = Force ÷ Area; SI unit pascal (Pa) = N/m².","Liquids and gases exert pressure on the walls of their container; atmospheric pressure acts on everything around us."],
+     formulas:["Pressure P = F / A","Net force = F₁ + F₂ (same direction)","Net force = F₁ − F₂ (opposite directions)"],
+     qs:[{q:"Why are the straps of a school bag made wide?",m:2,y:[2025,2023,2021],imp:true},{q:"Two children pull a box in opposite directions with 45 N and 15 N. Find the net force and its direction.",m:3,y:[2025,2024],imp:true},{q:"Give two examples each of contact and non-contact forces.",m:2,y:[2024,2022]},{q:"A block of weight 50 N rests on an area of 0.25 m². Calculate the pressure.",m:3,y:[2023],imp:true},{q:"Explain why a sharp knife cuts better than a blunt one.",m:2,y:[2022,2021]},{q:"Does a moving truck have force stored in it? Explain.",m:2,y:[2025]}]},
+   { n:2, name:"Friction",
+     summary:"Friction is the force that opposes relative motion between two surfaces in contact. It depends on the nature of the surfaces and how hard they are pressed together.",
+     points:["Friction always opposes the motion between surfaces in contact.","Static friction > sliding friction > rolling friction.","Friction is caused by interlocking of irregularities on the surfaces.","Friction can be reduced by lubricants, ball bearings and streamlining.","Friction is both useful (walking, writing) and harmful (wear and tear, heat)."],
+     formulas:["Order: static > sliding > rolling"],
+     qs:[{q:"Why is it difficult to walk on a wet, soapy floor?",m:2,y:[2025,2024,2022],imp:true},{q:"Explain why ball bearings are used in machines.",m:2,y:[2024,2021],imp:true},{q:"Friction is a necessary evil. Justify with two examples.",m:3,y:[2023,2021],imp:true},{q:"Why do sports shoes have spikes?",m:2,y:[2022]},{q:"Why are aeroplanes and boats given special shapes?",m:3,y:[2025]}]},
+   { n:3, name:"Exploring Forces: Upthrust",
+     summary:"When an object is placed in a liquid, the liquid pushes it upward. This upward force is called upthrust or buoyant force. An object floats when the upthrust equals its weight.",
+     points:["Upthrust = weight of the liquid pushed aside (displaced) by the object.","An object floats when it pushes aside water equal to its own weight.","A boat floats because its shape lets it push aside a lot of water; a coin sinks because it cannot.","Denser liquids (like salt water) give more upthrust for the same volume displaced.","A spring balance measures force; least count = range ÷ number of divisions."],
+     formulas:["Least count = range ÷ number of divisions","Floats when upthrust = weight"],
+     qs:[{q:"Why does an iron ship float while an iron nail sinks?",m:3,y:[2025,2024,2023,2021],imp:true},{q:"An egg sinks in fresh water but floats in salt water. Explain.",m:2,y:[2024,2022],imp:true},{q:"A spring balance reads 0–10 N with 20 divisions. Find its least count.",m:2,y:[2025,2023],imp:true},{q:"What is zero error in a spring balance? How is it corrected?",m:2,y:[2024]},{q:"Why does a mug of water feel lighter inside a bucket of water?",m:2,y:[2022,2021]}]},
+   { n:4, name:"Sound",
+     summary:"Sound is produced by vibrating objects and needs a medium to travel. It cannot travel through vacuum.",
+     points:["Sound is produced by vibration.","Sound needs a medium: solids > liquids > gases in speed.","Frequency is measured in hertz (Hz); it decides pitch.","Amplitude decides loudness, measured in decibels (dB).","Humans hear 20 Hz to 20,000 Hz."],
+     formulas:["Frequency = number of vibrations ÷ time","Time period = 1 ÷ frequency"],
+     qs:[{q:"Why can't astronauts talk to each other directly on the Moon?",m:2,y:[2025,2023],imp:true},{q:"A pendulum makes 40 oscillations in 4 s. Find its frequency and time period.",m:3,y:[2024,2022],imp:true},{q:"Differentiate between noise and music.",m:2,y:[2023]},{q:"Name the part that vibrates to produce sound in a sitar and a drum.",m:2,y:[2021]}]}
+ ]},
+ { id:"chem", name:"Chemistry", color:"#a25a12", chapters:[
+   { n:1, name:"Synthetic Fibres and Plastics",
+     summary:"Synthetic fibres are made by humans from petrochemicals. Plastics are polymers that can be moulded into any shape.",
+     points:["A polymer is a long chain of small units (monomers).","Rayon, nylon, polyester and acrylic are synthetic fibres.","Thermoplastics soften on heating; thermosetting plastics do not.","Plastics are non-biodegradable; follow the 4 R's.","Nylon is strong, elastic and light."],
+     formulas:[],
+     qs:[{q:"Why are electric switches made of thermosetting plastic?",m:2,y:[2025,2024,2022],imp:true},{q:"Differentiate between thermoplastics and thermosetting plastics.",m:3,y:[2024,2023],imp:true},{q:"Why should we avoid wearing synthetic clothes in the kitchen?",m:2,y:[2023,2021]},{q:"Explain the 4 R principle with examples.",m:3,y:[2022]}]},
+   { n:2, name:"Materials: Metals and Non-metals",
+     summary:"Metals are usually hard, shiny, malleable, ductile and good conductors. Non-metals are usually the opposite.",
+     points:["Malleability: beaten into sheets. Ductility: drawn into wires.","Metals form basic oxides; non-metals form acidic oxides.","A more reactive metal displaces a less reactive metal from its salt solution.","Sodium is stored in kerosene because it reacts vigorously with air and water.","Iron rusts in the presence of air and moisture."],
+     formulas:["Fe + CuSO₄ → FeSO₄ + Cu"],
+     qs:[{q:"Why is sodium stored in kerosene?",m:2,y:[2025,2023,2021],imp:true},{q:"What happens when an iron nail is placed in copper sulphate solution? Write the equation.",m:3,y:[2025,2024],imp:true},{q:"Why are iron gates painted?",m:2,y:[2022]},{q:"Give two differences between metals and non-metals.",m:2,y:[2024,2021]}]},
+   { n:3, name:"Coal and Petroleum",
+     summary:"Coal and petroleum are fossil fuels formed from dead organisms over millions of years. They are exhaustible resources.",
+     points:["Coke, coal tar and coal gas are obtained from coal.","Petroleum is refined by fractional distillation.","Fossil fuels are exhaustible and cause pollution.","CNG is a cleaner fuel.","PCRA gives tips to save fuel."],
+     formulas:[],
+     qs:[{q:"Why are coal and petroleum called fossil fuels?",m:2,y:[2025,2024,2022],imp:true},{q:"List any four products of petroleum and their uses.",m:3,y:[2023],imp:true},{q:"Give two tips to save petrol while driving.",m:2,y:[2021]}]},
+   { n:4, name:"Combustion and Flame",
+     summary:"Combustion is a chemical process in which a substance reacts with oxygen to give heat and light.",
+     points:["Three conditions: fuel, oxygen (air) and ignition temperature.","Water is not used for oil or electrical fires.","The outermost zone of a flame is the hottest.","Calorific value is measured in kJ/kg.","A good fuel is cheap, available and burns cleanly."],
+     formulas:["Calorific value = heat produced ÷ mass of fuel"],
+     qs:[{q:"What are the three conditions needed for combustion?",m:2,y:[2025,2024,2023,2022],imp:true},{q:"Why is water not used to put out an electrical fire?",m:2,y:[2024,2021],imp:true},{q:"Draw and label the zones of a candle flame.",m:3,y:[2023]}]}
+ ]},
+ { id:"bio", name:"Biology", color:"#2f7d4f", chapters:[
+   { n:1, name:"Cell – Structure and Functions",
+     summary:"The cell is the basic structural and functional unit of life. Plant and animal cells share many parts but differ in a few.",
+     points:["Cell membrane, cytoplasm and nucleus are common to all cells.","Plant cells have a cell wall and large vacuole; animal cells do not.","Chromosomes are made of DNA and protein.","Rough ER makes proteins; smooth ER makes lipids.","Mitochondria are the powerhouse of the cell."],
+     formulas:["Actual size = image size ÷ magnification"],
+     qs:[{q:"Why is the cell called the structural and functional unit of life?",m:2,y:[2025,2024,2022],imp:true},{q:"Give three differences between plant and animal cells.",m:3,y:[2025,2023,2021],imp:true},{q:"What are chromosomes made of?",m:1,y:[2024]},{q:"State the function of mitochondria.",m:1,y:[2022]}]},
+   { n:2, name:"Microorganisms: Friend and Foe",
+     summary:"Microorganisms are tiny living things seen only under a microscope. Some are useful, others cause disease.",
+     points:["Groups: bacteria, fungi, protozoa, algae and viruses.","Rhizobium fixes nitrogen in the root nodules of legumes.","Yeast is used in baking; Lactobacillus turns milk into curd.","Vaccines protect us from diseases like polio.","Food is preserved by salting, heating, refrigeration and chemicals."],
+     formulas:[],
+     qs:[{q:"How does Rhizobium help in increasing soil fertility?",m:2,y:[2025,2024,2023],imp:true},{q:"Explain how vaccines work.",m:3,y:[2024,2022],imp:true},{q:"Name two diseases each caused by bacteria and viruses.",m:2,y:[2023,2021]},{q:"Why does bread dough rise when yeast is added?",m:2,y:[2022]}]},
+   { n:3, name:"Crop Production and Management",
+     summary:"Crop production involves soil preparation, sowing, manuring, irrigation, weeding, harvesting and storage.",
+     points:["Kharif crops are sown in the rainy season; rabi crops in winter.","Ploughing loosens soil and allows roots to breathe.","Manure is organic; fertilisers are chemical.","Drip and sprinkler irrigation save water.","Grains are dried and stored in silos and granaries."],
+     formulas:[],
+     qs:[{q:"Differentiate between manure and fertiliser.",m:3,y:[2025,2023,2021],imp:true},{q:"Why is ploughing important?",m:2,y:[2024,2022],imp:true},{q:"Give two examples each of kharif and rabi crops.",m:2,y:[2023]}]}
+ ]},
+ { id:"math", name:"Maths", color:"#2a5d9f", chapters:[
+   { n:1, name:"Rational Numbers",
+     summary:"A rational number can be written as p/q where p and q are integers and q ≠ 0.",
+     points:["Rational numbers are closed under addition, subtraction and multiplication.","0 is the additive identity; 1 is the multiplicative identity.","The reciprocal of a/b is b/a (a ≠ 0).","There are infinitely many rational numbers between any two rational numbers.","To mark p/q on the number line, divide each unit into q equal parts."],
+     formulas:["a × (b + c) = a×b + a×c","Reciprocal of a/b = b/a"],
+     qs:[{q:"Find five rational numbers between −1/2 and 1/3.",m:3,y:[2025,2024,2022],imp:true},{q:"Represent −3/4 on the number line.",m:2,y:[2024,2023],imp:true},{q:"Write the additive inverse of −7/9 and the reciprocal of −5/8.",m:2,y:[2023,2021]},{q:"Simplify using the distributive property: 2/5 × (−3/7) − 1/14 − 3/7 × 3/5",m:3,y:[2022]}]},
+   { n:2, name:"Linear Equations in One Variable",
+     summary:"A linear equation in one variable has the highest power of the variable as 1. Solve by doing the same operation on both sides.",
+     points:["Transposing a term changes its sign.","Always check your answer by substituting it back.","For word problems, start with “Let the number be x”.","Cross-multiplication works when both sides are single fractions.","Simplify brackets before transposing."],
+     formulas:["ax + b = c ⇒ x = (c − b) / a"],
+     qs:[{q:"Solve: 3x + 5 = 20.",m:1,y:[2025,2024,2023],imp:true},{q:"The sum of three consecutive multiples of 8 is 888. Find the multiples.",m:3,y:[2025,2023,2021],imp:true},{q:"A number is 12 more than another. Their sum is 74. Find the numbers.",m:3,y:[2024,2022],imp:true},{q:"Solve: (x − 5)/3 = (x − 3)/5.",m:2,y:[2022]}]},
+   { n:3, name:"Squares and Square Roots",
+     summary:"A perfect square is a number that is the square of a natural number. Square roots can be found by prime factorisation or long division.",
+     points:["A perfect square never ends in 2, 3, 7 or 8.","Square of an even number is even; of an odd number is odd.","Pythagorean triplet: 2m, m² − 1, m² + 1.","Prime factorisation: pair up equal factors.","Long division method works for large numbers and decimals."],
+     formulas:["(a + b)² = a² + 2ab + b²","Triplet: 2m, m²−1, m²+1"],
+     qs:[{q:"Find the square root of 7744 by prime factorisation.",m:3,y:[2025,2024,2022],imp:true},{q:"Find the smallest number by which 1800 must be multiplied to make it a perfect square.",m:3,y:[2024,2023],imp:true},{q:"Write a Pythagorean triplet whose smallest member is 8.",m:2,y:[2023,2021]}]},
+   { n:4, name:"Mensuration",
+     summary:"Mensuration deals with area, surface area and volume of plane and solid shapes.",
+     points:["Area of trapezium = ½ × (sum of parallel sides) × height.","Surface area of cuboid = 2(lb + bh + hl).","Volume of cylinder = πr²h.","1 L = 1000 cm³; 1 m³ = 1000 L.","Curved surface area of cylinder = 2πrh."],
+     formulas:["Trapezium = ½(a + b)h","Cuboid SA = 2(lb + bh + hl)","Cylinder V = πr²h"],
+     qs:[{q:"Find the area of a trapezium with parallel sides 10 cm and 6 cm and height 4 cm.",m:2,y:[2025,2024,2023],imp:true},{q:"A cylindrical tank has radius 7 m and height 3 m. Find its capacity in litres.",m:3,y:[2025,2022],imp:true},{q:"Find the total surface area of a cube of side 5 cm.",m:2,y:[2021]}]}
+ ]}
+];
+
+const HOLIDAYS = {"2026-08-15":"Independence Day","2026-09-14":"Ganesh Chaturthi","2026-10-02":"Gandhi Jayanti","2026-10-20":"Dussehra","2026-11-07":"Diwali break","2026-11-09":"Diwali break","2026-11-10":"Diwali break","2026-11-11":"Diwali break"};
+const ABSENT = ["2026-06-18","2026-07-07","2026-07-08","2026-07-24","2026-08-21","2026-09-03","2026-09-25","2026-10-13","2026-10-29","2026-11-17"];
+const TIMES = ["4:00 – 5:00 PM","5:10 – 6:10 PM","6:20 – 7:20 PM"];
+const TEACHERS = {Physics:"Mr. Arjun Rao",Maths:"Mrs. Kavya Nair",Chemistry:"Mr. Sameer Khan",Biology:"Ms. Priya Menon","Doubt Session":"All faculty"};
+const SUBJ_COLOR = {Physics:"#7a1f2b",Chemistry:"#a25a12",Biology:"#2f7d4f",Maths:"#2a5d9f","Doubt Session":"#6e5f63"};
+const TIMETABLE = {1:["Physics","Maths","Chemistry"],2:["Biology","Maths","Physics"],3:["Chemistry","Maths","Biology"],4:["Physics","Maths","Chemistry"],5:["Biology","Maths","Physics"],6:["Chemistry","Biology","Doubt Session"]};
+
+const UPCOMING = [
+ {d:"2026-11-22",t:"Parent–Teacher Meeting",s:"10:00 AM – 1:00 PM · Veda Vidya campus",k:"PTM"},
+ {d:"2026-11-24",t:"Guru Nanak Jayanti",s:"Holiday · no classes",k:"Holiday"},
+ {d:"2026-11-28",t:"Physics retest (Day 14)",s:"20 marks · Upthrust, spring balance, forces",k:"Test"},
+ {d:"2026-12-05",t:"Unit Test – Chemistry",s:"Coal and Petroleum · Combustion and Flame",k:"Test"},
+ {d:"2026-12-12",t:"Unit Test – Maths",s:"Squares and Square Roots · Mensuration",k:"Test"},
+ {d:"2026-12-19",t:"Unit Test – Biology",s:"Microorganisms · Crop Production",k:"Test"},
+ {d:"2026-12-25",t:"Christmas",s:"Holiday · no classes",k:"Holiday"},
+ {d:"2026-12-26",t:"Winter break begins",s:"26 Dec – 1 Jan · classes resume 2 Jan",k:"Holiday"},
+ {d:"2027-01-14",t:"Makar Sankranti",s:"Holiday · no classes",k:"Holiday"},
+ {d:"2027-01-16",t:"Pre-annual mock test",s:"All subjects · full syllabus",k:"Test"},
+ {d:"2027-01-26",t:"Republic Day",s:"Holiday · flag hoisting at 8:00 AM",k:"Holiday"},
+ {d:"2027-02-15",t:"Annual Examinations",s:"15 – 25 February",k:"Exam"}
+];
+const SYLLABUS = [
+ ["November",["Physics: Friction, Sound","Chemistry: Coal and Petroleum","Maths: Squares and Square Roots","Biology: Microorganisms"]],
+ ["December",["Physics: Light","Chemistry: Combustion and Flame","Maths: Mensuration","Biology: Crop Production"]],
+ ["January",["Full revision","Pre-annual mock test","Doubt-clearing marathon"]],
+ ["February",["Annual Examinations"]]
+];
+
+const DPP_TOPICS = [
+ {t:"Upthrust and displaced water",hist:[40,55,70],status:"weak"},
+ {t:"Reading a spring-balance scale",hist:[50,75],status:"improving"},
+ {t:"Force is not stored",hist:[60,90],status:"strong"},
+ {t:"Net force",hist:[45,60],status:"improving"}
+];
+const DPP_TODAY = { title:"DPP 6 · Upthrust and forces", day:6, of:14, qs:[
+ {q:"A wooden boat floats on water. Which statement best explains why?",o:["Wood is lighter than iron","The water it pushes aside weighs as much as the boat","Air below the boat holds it up","Water has no weight"],a:1,topic:"Upthrust",hint:"Think about how much water the boat pushes aside and what that water weighs.",sol:"An object floats when the upthrust equals its weight. Upthrust equals the weight of the water displaced, so the boat floats when the water it pushes aside weighs as much as the boat."},
+ {q:"A spring balance reads from 0 to 10 N and has 20 equal divisions. What is its least count?",o:["2 N","0.2 N","0.5 N","5 N"],a:2,topic:"Spring balance",hint:"Least count = range ÷ number of divisions.",sol:"Least count = 10 N ÷ 20 = 0.5 N. Dividing the other way round (20 ÷ 10) is the common mistake."},
+ {q:"An egg sinks in fresh water but floats in salt water. Why?",o:["Salt makes the egg lighter","Salt water is denser, so it gives more upthrust","The egg absorbs the salt","Fresh water pulls the egg down"],a:1,topic:"Upthrust",hint:"Which liquid is heavier for the same volume?",sol:"Salt water is denser than fresh water. For the same volume pushed aside, it weighs more, so the upthrust is greater and the egg floats."},
+ {q:"Which statement about force is correct?",o:["A heavy moving truck has more force stored inside it","Force acts only while two objects interact","Force stays in a ball after it is thrown","Only living things can apply force"],a:1,topic:"Nature of force",hint:"Is force something an object carries, or something that happens between objects?",sol:"Force is a push or a pull that comes from an interaction. It is not stored inside an object. Once the hand leaves the ball, it no longer pushes it."},
+ {q:"Two children pull a box in opposite directions with 45 N and 15 N. What is the net force?",o:["60 N towards the 45 N side","30 N towards the 45 N side","30 N towards the 15 N side","0 N"],a:1,topic:"Net force",hint:"Opposite directions: subtract the smaller force from the larger one.",sol:"Net force = 45 N − 15 N = 30 N, in the direction of the larger force (45 N)."},
+ {q:"On the same balance (least count 0.5 N), the pointer stops at the 7th division. What is the reading?",o:["7 N","3.5 N","1.4 N","0.7 N"],a:1,topic:"Spring balance",hint:"Reading = number of divisions × least count.",sol:"Reading = 7 × 0.5 N = 3.5 N."}
+]};
+let DPP_HISTORY = [
+ {d:"20 Nov",t:"DPP 5 · Upthrust basics",s:7,of:10,done:true},
+ {d:"19 Nov",t:"DPP 4 · Spring-balance readings",s:8,of:10,done:true},
+ {d:"18 Nov",t:"DPP 3 · Force is not stored",s:9,of:10,done:true},
+ {d:"17 Nov",t:"DPP 2 · Upthrust introduction",s:5,of:10,done:true},
+ {d:"16 Nov",t:"DPP 1 · Net force",s:0,of:10,done:false}
+];
+
+const AI_SUGGEST = [
+ {subj:"Physics",q:"Why does a boat float but a coin sinks?",a:"Let's work it out together.\n\n<b>Hint 1:</b> When something is put in water, the water pushes it up. This push is called <b>upthrust</b>. What decides how big this push is?\n\n<b>Hint 2:</b> Upthrust equals the weight of the water the object pushes aside (displaces). A boat is wide and hollow. Does it push aside a lot of water or a little?\n\n<b>Answer:</b> The boat's shape lets it push aside a large amount of water, enough to equal its own weight, so it floats. A coin is small and solid. It pushes aside very little water, so the upthrust is less than its weight and it sinks.\n\n📘 See <b>Physics · Ch 3 · Upthrust</b> for 5 PYQs on this topic."},
+ {subj:"Physics",q:"How do I find the least count of a spring balance?",a:"<b>Hint 1:</b> Look at the scale. What is the largest reading it can show (its range)?\n\n<b>Hint 2:</b> Count how many equal divisions the scale has between 0 and that largest reading.\n\n<b>Method:</b> Least count = range ÷ number of divisions.\n\n<b>Example:</b> 0–10 N with 20 divisions → 10 ÷ 20 = <b>0.5 N</b>.\n\n⚠️ Common mistake: dividing the other way (20 ÷ 10 = 2). Always put the range on top."},
+ {subj:"Physics",q:"What is friction? Give an everyday example.",a:"<b>Hint 1:</b> Rub your palms together quickly. What do you feel, and is it easy or hard to move them?\n\n<b>Hint 2:</b> Surfaces look smooth but have tiny bumps that lock into each other.\n\n<b>Answer:</b> Friction is the force that opposes motion between two surfaces in contact. It is caused by these tiny bumps interlocking.\n\n<b>Everyday example:</b> We can walk because friction between our shoes and the ground stops us from slipping. On a wet, soapy floor there is less friction, so we slip."},
+ {subj:"Maths",q:"How do I solve 3x + 5 = 20?",a:"<b>Hint 1:</b> We want x alone on one side. What is added to 3x?\n\n<b>Hint 2:</b> Subtract 5 from both sides. What do you get?\n\n<b>Step 1:</b> 3x + 5 − 5 = 20 − 5 → 3x = 15\n<b>Step 2:</b> Divide both sides by 3 → x = 5\n\n<b>Check:</b> 3 × 5 + 5 = 20 ✓\n\nTry this one yourself: 4x − 7 = 21."},
+ {subj:"Chemistry",q:"What are the three conditions needed for combustion?",a:"<b>Hint:</b> Think of a candle. What does it need to start burning, and what happens if you cover it with a glass?\n\n<b>Answer:</b> The three conditions are:\n1. A <b>fuel</b> (wax, wood, LPG)\n2. <b>Oxygen</b> from the air\n3. Reaching the <b>ignition temperature</b>\n\nRemove any one and the fire goes out. That is why covering a candle with a glass puts it out: the oxygen runs out."},
+ {subj:"Biology",q:"Why is the cell called the unit of life?",a:"<b>Hint 1:</b> What is the smallest part of your body that is still alive on its own?\n\n<b>Hint 2:</b> Think about structure (what we are made of) and function (what keeps us alive).\n\n<b>Answer:</b> Every living thing is made of cells (structural unit), and every life process like breathing, digestion and growth happens inside cells (functional unit). So the cell is called the structural and functional unit of life."}
+];
+
+const NOTIFS = [
+ {id:1,ic:"report",t:"New Parent Report available",s:"Physics Unit Test – Exploring Forces · 25/35",w:"2h ago",go:["parentReport",{id:"phy-oct"}],unread:true},
+ {id:2,ic:"heart",t:"Wellbeing & Counselling report shared",s:"From the November counselling session",w:"Yesterday",go:["wellbeing",{}],unread:true},
+ {id:3,ic:"dpp",t:"Today's DPP is ready",s:"DPP 6 · Upthrust and forces · 6 questions",w:"Today, 7:00 AM",go:["dpp",{}],unread:true},
+ {id:4,ic:"cal",t:"PTM on Sunday, 22 November",s:"10:00 AM – 1:00 PM at Veda Vidya campus",w:"2 days ago",go:["attendance",{seg:"plan"}],unread:false},
+ {id:5,ic:"cal",t:"Holiday: Guru Nanak Jayanti",s:"No classes on Tuesday, 24 November",w:"3 days ago",go:["attendance",{seg:"plan"}],unread:false},
+ {id:6,ic:"book",t:"New notes uploaded",s:"Physics · Ch 3 · Upthrust revision notes",w:"4 days ago",go:["chapter",{s:"phy",c:3}],unread:false},
+ {id:7,ic:"test",t:"Unit Test – Chemistry on 5 December",s:"Coal and Petroleum · Combustion and Flame",w:"5 days ago",go:["attendance",{seg:"plan"}],unread:false},
+ {id:8,ic:"check",t:"Attendance this month: 93%",s:"Great going! Keep it above 85%.",w:"1 week ago",go:["attendance",{}],unread:false}
+];
+
+/* ============================== HELPERS ============================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct = (a,b) => b ? Math.round(a/b*1000)/10 : 0;
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTHS_L = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const pd = s => { const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); };
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const fmtDate = s => { const d=pd(s); return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
+const tone = p => p>=80?"good":p>=65?"warn":"bad";
+const toneColor = p => `var(--${tone(p)})`;
+const ICON = {
+ report:'<path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+ heart:'<path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 000-7.8z"/>',
+ dpp:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>',
+ cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+ book:'<path d="M4 19.5A2.5 2.5 0 016.5 17H20V3H6.5A2.5 2.5 0 004 5.5z"/><path d="M4 19.5A2.5 2.5 0 006.5 22H20v-5"/>',
+ test:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2h9"/>',
+ check:'<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+ users:'<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/>',
+ download:'<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/>',
+ eye:'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',
+ chev:'<path d="M9 18l6-6-6-6"/>',
+ back:'<path d="M15 18l-6-6 6-6"/>',
+ bell:'<path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/>',
+ logout:'<path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>',
+ send:'<path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/>',
+ camera:'<path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/>',
+ spark:'<path d="M12 3l1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/>',
+ chart:'<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-6"/>',
+ bulb:'<path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z"/>'
+};
+const svg = (k,cls="") => `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true">${ICON[k]}</svg>`;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2600); }
+const store = { get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}}, del(k){try{localStorage.removeItem(k)}catch(e){}} };
+
+/* attendance build */
+const ATT = (() => {
+  const days=[]; const start=new Date(2026,5,1);
+  for(let d=new Date(start); d<=TODAY; d.setDate(d.getDate()+1)){
+    const key=ymd(d), dow=d.getDay();
+    let st = dow===0 ? "N" : HOLIDAYS[key] ? "H" : ABSENT.includes(key) ? "A" : "P";
+    days.push({key, date:new Date(d), dow, st, subj: (st==="P"||st==="A") ? TIMETABLE[dow] : [], note:HOLIDAYS[key]||""});
+  }
+  const months={}; const subj={};
+  for(const d of days){
+    const mk=d.key.slice(0,7); months[mk] ??= {key:mk,cond:0,att:0,absentDays:0,holidays:0};
+    if(d.st==="H") months[mk].holidays++;
+    for(const s of d.subj){ months[mk].cond++; subj[s] ??= {cond:0,att:0}; subj[s].cond++; if(d.st==="P"){months[mk].att++; subj[s].att++;} }
+    if(d.st==="A") months[mk].absentDays++;
+  }
+  const ml=Object.values(months); const cond=ml.reduce((a,m)=>a+m.cond,0), att=ml.reduce((a,m)=>a+m.att,0);
+  return {days, months:ml, subj, cond, att};
+})();
+{ const nov=ATT.months.find(m=>m.key==="2026-11"); NOTIFS.find(n=>n.id===8).t=`Attendance this month: ${Math.round(pct(nov.att,nov.cond))}%`; }
+
+/* ============================== ROUTER ============================== */
+const TABS = [
+ {id:"reports",label:"Reports",ic:"chart"},
+ {id:"qbank",label:"Q Bank",ic:"book"},
+ {id:"attendance",label:"Attendance",ic:"cal"},
+ {id:"dpp",label:"DPP",ic:"dpp"},
+ {id:"ai",label:"Ask AI",ic:"spark"}
+];
+const state = { loggedIn: store.get("vv_login")==="1", stack:[], notifs: NOTIFS.map(n=>({...n})), chat:[], dpp:{answers:{}, i:0, showHint:false, submitted:false, completed:false}, aiSubj:"All", qbTab:"pyq" };
+
+function nav(name, params={}, opts={}){
+  if(opts.root) state.stack=[{name,params}];
+  else state.stack.push({name,params});
+  render(); window.scrollTo(0,0);
+}
+function back(){ if(state.stack.length>1){ state.stack.pop(); render(); window.scrollTo(0,0);} }
+const cur = () => state.stack[state.stack.length-1];
+
+function render(){
+  const app=$("#app");
+  if(!state.loggedIn){ app.innerHTML = Login(); bindLogin(); return; }
+  if(!state.stack.length) state.stack=[{name:"reports",params:{}}];
+  const {name,params} = cur(); const scr = SCREENS[name];
+  const tabId = TABS.find(t=>t.id===state.stack[0].name)?.id;
+  const unread = state.notifs.filter(n=>n.unread).length;
+  const isRoot = state.stack.length===1;
+  app.innerHTML = `
+   <header class="topbar">
+     ${isRoot ? `<div class="brandmark"><div class="logo">V</div><div style="min-width:0"><h1>${esc(scr.title(params))}</h1><small>Veda Vidya Institute</small></div></div>`
+              : `<button class="iconbtn" data-act="back" aria-label="Back">${svg("back")}</button><h1>${esc(scr.title(params))}</h1>`}
+     <button class="iconbtn" data-act="notifs" aria-label="Notifications, ${unread} unread">${svg("bell")}${unread?`<span class="badge">${unread}</span>`:""}</button>
+   </header>
+   <main id="view" class="${name==="ai"?"":""}">${scr.render(params)}</main>
+   <nav class="tabbar" aria-label="Main">${TABS.map(t=>`<button data-tab="${t.id}" ${t.id===tabId?'aria-current="page"':""}><span class="pill">${svg(t.ic)}</span>${t.label}</button>`).join("")}</nav>`;
+  scr.after && scr.after(params);
+}
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-tab],[data-go],[data-act]"); if(!t) return;
+  if(t.dataset.tab){ nav(t.dataset.tab,{}, {root:true}); return; }
+  if(t.dataset.go){ nav(t.dataset.go, t.dataset.p?JSON.parse(t.dataset.p):{}); return; }
+  const a=t.dataset.act;
+  if(a==="back") back();
+  else if(a==="notifs") nav("notifs");
+  else if(a==="logout"){ state.loggedIn=false; store.del("vv_login"); state.stack=[]; render(); }
+  else if(ACTIONS[a]) ACTIONS[a](t, e);
+});
+const go = (name,p={}) => `data-go="${name}" data-p='${esc(JSON.stringify(p))}'`;
+
+/* ============================== LOGIN ============================== */
+function Login(){ return `
+ <div class="login">
+   <div class="login-hero">
+     <div class="logo">V</div>
+     <h1>Veda Vidya Institute</h1>
+     <p>Student app: reports, notes, attendance and daily practice in one place.</p>
+   </div>
+   <form class="login-form" id="loginForm" novalidate>
+     <h2 style="font-size:18px">Log in</h2>
+     <div class="field"><label for="u">Username</label><div class="inp"><input id="u" autocomplete="username" autocapitalize="none" placeholder="Enter your username"></div></div>
+     <div class="field"><label for="p">Password</label><div class="inp"><input id="p" type="password" autocomplete="current-password" placeholder="Enter your password"><button type="button" class="eye" id="eye">Show</button></div></div>
+     <p class="err" id="err" hidden></p>
+     <button class="btn block" type="submit">Log in</button>
+     <div class="demo-hint">Demo login: username <code>student</code> · password <code>veda123</code></div>
+   </form>
+ </div>`; }
+function bindLogin(){
+  $("#eye").onclick=()=>{ const p=$("#p"); const show=p.type==="password"; p.type=show?"text":"password"; $("#eye").textContent=show?"Hide":"Show"; };
+  $("#loginForm").onsubmit=e=>{ e.preventDefault();
+    const u=$("#u").value.trim().toLowerCase(), p=$("#p").value;
+    const err=$("#err");
+    if(!u||!p){ err.textContent="Enter your username and password."; err.hidden=false; return; }
+    if(u!==STUDENT.login.user||p!==STUDENT.login.pass){ err.textContent="Username or password is incorrect. Try student / veda123."; err.hidden=false; return; }
+    state.loggedIn=true; store.set("vv_login","1"); state.stack=[{name:"reports",params:{}}]; render(); toast(`Welcome, ${STUDENT.first}!`);
+  };
+}
+
+/* ============================== SCREENS ============================== */
+const ringSvg = (p, size=118, stroke=12, color) => { const r=(size-stroke)/2, c=2*Math.PI*r; return `<svg viewBox="0 0 ${size} ${size}"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="${stroke}"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color||toneColor(p)}" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${c*p/100} ${c}"/></svg>`; };
+const barLine = (label,val,max,color,suffix) => { const p=pct(val,max); return `<div class="barline"><span class="lbl">${label}</span><span class="val">${suffix??`${val} / ${max}`}</span><div class="bar"><i style="width:${Math.min(100,p)}%;background:${color||toneColor(p)}"></i></div></div>`; };
+
+function progressChart(){
+  const ex=[...EXAMS].sort((a,b)=>a.date.localeCompare(b.date));
+  const W=340,H=200,L=40,R=26,T=22,B=40, lo=40, hi=100;
+  const x=i=>L+i*(W-L-R)/(ex.length-1), y=v=>T+(hi-v)*(H-T-B)/(hi-lo);
+  const me=ex.map(e=>pct(e.score,e.max)), av=ex.map(e=>e.classAvg);
+  const path=a=>a.map((v,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("");
+  const area=`${path(me)}L${x(me.length-1)},${y(lo)}L${x(0)},${y(lo)}Z`;
+  const grid=[40,60,80,100].map(v=>`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="10" fill="var(--muted)">${v}%</text>`).join("");
+  const xl=ex.map((e,i)=>`<text x="${x(i)}" y="${H-22}" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--fg)">${MONTHS[pd(e.date).getMonth()]}</text><text x="${x(i)}" y="${H-9}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${esc(e.subject)}</text>`).join("");
+  const dots=me.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="${i===me.length-1?5.5:4}" fill="var(--surface)" stroke="var(--brand)" stroke-width="2.5"/><text x="${x(i)}" y="${y(v)-11}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--brand)">${Math.round(v)}%</text>`).join("");
+  const adots=av.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="3" fill="var(--muted)"/>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Your percentage across the last ${ex.length} exams compared with the class average">
+    <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--brand)" stop-opacity=".18"/><stop offset="1" stop-color="var(--brand)" stop-opacity="0"/></linearGradient></defs>
+    ${grid}<path d="${area}" fill="url(#ga)"/>
+    <path d="${path(av)}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 4"/>${adots}
+    <path d="${path(me)}" fill="none" stroke="var(--brand)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>${dots}${xl}</svg>`;
+}
+
+const SCREENS = {
+ /* ---------- REPORTS ---------- */
+ reports:{ title:()=> "Reports", render(){
+  const ex=[...EXAMS].sort((a,b)=>b.date.localeCompare(a.date)); const L=ex[0], P=ex[1];
+  const lp=pct(L.score,L.max), pp=pct(P.score,P.max), diff=Math.round((lp-pp)*10)/10;
+  return `
+  <div class="card flat student">
+    <div class="avatar">${STUDENT.initials}</div>
+    <div class="grow"><h3 style="font-size:16px">${STUDENT.name}</h3><p class="small muted">Class ${STUDENT.cls} · Roll No. ${STUDENT.roll}</p></div>
+    <button class="chip" data-act="logout">${svg("logout").replace('class=""','style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2"')} Log out</button>
+  </div>
+
+  <div class="card stack">
+    <div class="section-h" style="margin:0"><h2>Progress</h2><span class="chip ${diff>=0?"good":"bad"}">${diff>=0?"▲":"▼"} ${Math.abs(diff)}% vs last exam</span></div>
+    <div class="chart">${progressChart()}</div>
+    <div class="chart-legend"><span><i style="background:var(--brand)"></i>${STUDENT.first}'s score</span><span><i style="background:var(--muted)"></i>Class average</span></div>
+    <p class="small muted">${STUDENT.first} is above the class average in all ${EXAMS.length} exams this year, and his score has risen from 63% in July to 71% in October.</p>
+  </div>
+
+  <div class="result-hero">
+    <div class="row" style="align-items:flex-start"><div class="grow"><p class="eyebrow">Latest exam</p><h3 style="margin-top:4px">${esc(L.name)}</h3></div></div>
+    <div class="row" style="align-items:flex-end;justify-content:space-between;flex-wrap:wrap">
+      <div><div class="score num">${L.score}<small> / ${L.max}</small></div><p style="margin-top:6px;font-weight:600">${lp}%</p></div>
+      <div style="text-align:right"><span class="delta">${diff>=0?"▲":"▼"} ${Math.abs(diff)}%</span><p style="font-size:12px;opacity:.8;margin-top:6px">Previous: ${pp}% · Class avg: ${L.classAvg}%</p></div>
+    </div>
+    <div class="meta"><span>${esc(L.subject)}</span><span>${fmtDate(L.date)}</span><span>Class ${STUDENT.cls}</span></div>
+  </div>
+
+  <div class="section-h"><h2>Reports for this exam</h2></div>
+  ${reportCards(L.id)}
+
+  <div class="section-h"><h2>Wellbeing & Counselling</h2></div>
+  <div class="card report-card">
+    <div class="row"><div class="ic" style="background:var(--good-soft);color:var(--good)">${svg("heart")}</div>
+      <div class="grow"><h3>Wellbeing & Counselling Report</h3><p class="small muted">November counselling session · ${WELLBEING.session}</p></div></div>
+    <p class="small">How ${STUDENT.first} is feeling about studies, friends and home, from his session with the school counsellor.</p>
+    <div class="btn-row"><button class="btn ghost" ${go("wellbeing")}>${svg("eye")} View</button><button class="btn" data-act="download" data-kind="wellbeing">${svg("download")} Download</button></div>
+  </div>
+
+  <div class="section-h"><h2>Previous exams</h2></div>
+  <div class="card flat" style="padding-block:4px"><div class="list">
+    ${ex.map(e=>{const p=pct(e.score,e.max);return `<button class="list-item exam-row" ${go("exam",{id:e.id})}>
+      <div class="grow"><p style="font-weight:600;font-size:14px">${esc(e.name)}</p><p class="small muted">${fmtDate(e.date)} · Class avg ${e.classAvg}%</p></div>
+      <div style="text-align:right"><div class="pct num" style="color:${toneColor(p)}">${e.score}/${e.max}</div><p class="small muted num">${p}%</p></div>${svg("chev","chev")}</button>`}).join("")}
+  </div></div>`;
+ }},
+ exam:{ title:p=>EXAMS.find(e=>e.id===p.id).short, render(p){
+  const e=EXAMS.find(x=>x.id===p.id), sp=pct(e.score,e.max);
+  return `<div class="result-hero">
+    <div><p class="eyebrow">${fmtDate(e.date)} · ${esc(e.subject)}</p><h3 style="margin-top:4px">${esc(e.name)}</h3></div>
+    <div class="row" style="justify-content:space-between;align-items:flex-end;flex-wrap:wrap"><div class="score num">${e.score}<small> / ${e.max}</small></div><div style="text-align:right"><p style="font-weight:700;font-size:18px">${sp}%</p><p style="font-size:12px;opacity:.8">Class average ${e.classAvg}%</p></div></div>
+  </div>
+  <div class="card stack"><h2 style="font-size:16px">Marks by section</h2><div class="bars">${e.sections.map(s=>barLine(esc(s[0]),s[1],s[2])).join("")}</div></div>
+  <div class="section-h"><h2>Reports</h2></div>${reportCards(e.id)}`;
+ }},
+ parentReport:{ title:()=> "Parent Report", render(p){
+  const e=EXAMS.find(x=>x.id===p.id), sp=pct(e.score,e.max);
+  return `<div class="doc">
+   <div class="doc-head"><p class="eyebrow">Veda Vidya Institute · Parent Conclusion Report</p><h2>${esc(e.name)}</h2><p>Class ${STUDENT.cls} · ${esc(e.subject)} · ${fmtDate(e.date)}</p></div>
+   <div class="doc-body">
+    <dl class="kv"><dt>Student</dt><dd>${STUDENT.name}</dd><dt>Class</dt><dd>${STUDENT.cls}</dd><dt>Marks</dt><dd class="num">${e.score} / ${e.max} (${sp}%)</dd><dt>Exam date</dt><dd>${fmtDate(e.date)}</dd></dl>
+    <p>Dear Parent/Guardian of ${STUDENT.name},</p>
+    <section><h3>Overall result</h3><p style="margin-top:6px">${e.overall}</p></section>
+    <section><h3>Marks by section</h3><div class="bars" style="margin-top:10px">${e.sections.map(s=>barLine(esc(s[0]),s[1],s[2],undefined,`${s[1]} / ${s[2]} (${Math.round(pct(s[1],s[2]))}%)`)).join("")}</div></section>
+    <section><h3>What went well</h3><ul>${e.wentWell.map(x=>`<li>${x}</li>`).join("")}</ul></section>
+    <section><h3>Areas we will work on together</h3><ul>${e.workOn.map(x=>`<li>${x}</li>`).join("")}</ul></section>
+    <section><h3>Our next steps</h3><ul>${e.nextSteps.map(x=>`<li>${x}</li>`).join("")}</ul></section>
+    <section><h3>How you can help at home</h3><ul>${e.helpHome.map(x=>`<li>${x}</li>`).join("")}</ul></section>
+    <section><h3>Conclusion</h3><div class="callout" style="margin-top:8px">${e.conclusion}</div></section>
+    <p class="small muted">Warm regards,<br>Academic Coordinator · Veda Vidya Institute</p>
+   </div></div>
+   <button class="btn block no-print" data-act="download" data-kind="parent" data-id="${e.id}">${svg("download")} Download Parent Report (PDF)</button>`;
+ }},
+ facultyReport:{ title:()=> "Faculty Report", render(p){
+  const e=EXAMS.find(x=>x.id===p.id), sp=pct(e.score,e.max); const lost=e.weak.reduce((a,w)=>a+w.lost,0);
+  return `<div class="doc">
+   <div class="doc-head"><p class="eyebrow">Veda Vidya Institute · Faculty Action Plan</p><h2>${STUDENT.name} · ${esc(e.subject)}</h2><p>${esc(e.name)} · ${fmtDate(e.date)}</p></div>
+   <div class="doc-body">
+    <dl class="kv"><dt>Student</dt><dd>${STUDENT.name} · Class ${STUDENT.cls} · Roll ${STUDENT.roll}</dd><dt>Score</dt><dd class="num">${e.score} / ${e.max} (${sp}%)</dd><dt>Class average</dt><dd class="num">${e.classAvg}%</dd><dt>Prepared by</dt><dd>${esc(e.faculty)}</dd></dl>
+    <div class="row" style="gap:10px;flex-wrap:wrap"><span class="chip good">${e.strong.length} strong topics</span><span class="chip bad">${e.weak.length} weak topics</span><span class="chip">${lost} marks to recover</span></div>
+    <section class="stack"><h3>Strong topics</h3>
+      ${e.strong.map(s=>`<div class="topic strong"><div class="row" style="justify-content:space-between;align-items:flex-start"><h4>${esc(s.t)}</h4><span class="chip good">Strong</span></div><p class="small muted">${esc(s.q)}</p><p class="small">${esc(s.note)}</p></div>`).join("")}
+    </section>
+    <section class="stack"><h3>Weak topics and faculty action</h3>
+      ${e.weak.map(w=>`<div class="topic weak ${w.pr==="High"?"":"med"}"><div class="row" style="justify-content:space-between;align-items:flex-start"><h4>${esc(w.t)}</h4><span class="chip ${w.pr==="High"?"bad":"warn"}">${w.pr} priority</span></div>
+        <p class="small muted">${esc(w.q)} · ${w.lost} mark${w.lost>1?"s":""} lost</p><p class="small"><b>Why:</b> ${esc(w.why)}</p><div class="action"><b>Faculty action:</b> ${esc(w.act)}</div></div>`).join("")}
+    </section>
+    <section><h3>Improvement plan</h3><div class="tbl-wrap" style="margin-top:10px"><table><thead><tr><th>When</th><th>Focus</th></tr></thead><tbody>${e.plan.map(r=>`<tr><td style="white-space:nowrap;font-weight:600">${r[0]}</td><td>${esc(r[1])}</td></tr>`).join("")}</tbody></table></div></section>
+    <section><h3>Target</h3><div class="callout" style="margin-top:8px">${esc(e.target)}. Progress will be tracked through daily DPPs in the app and shared with parents.</div></section>
+   </div></div>
+   <button class="btn block no-print" data-act="download" data-kind="faculty" data-id="${e.id}">${svg("download")} Download Faculty Report (PDF)</button>`;
+ }},
+ wellbeing:{ title:()=> "Wellbeing & Counselling", render(){
+  const W=WELLBEING;
+  return `<div class="doc">
+   <div class="doc-head"><p class="eyebrow">Veda Vidya Institute · Wellbeing & Counselling Report</p><h2>${STUDENT.first}'s progress and wellbeing</h2><p>November counselling · Session on ${W.session}</p></div>
+   <div class="doc-body">
+    <p>Dear Parents,</p>
+    <p>As part of our November counselling programme, ${STUDENT.first} (Class ${STUDENT.cls}) met our counsellor on ${W.session}. We would like to share how he is doing and invite you to meet us.</p>
+    <section><h3>What is going well</h3><ul>${W.good.map(x=>`<li>${x}</li>`).join("")}</ul></section>
+    <section><h3>${STUDENT.first} is well supported at home and with friends</h3><p class="small muted" style="margin:4px 0 10px">His own rating on each question (best possible answer = 100%)</p>
+      <div class="bars">${W.high.map(r=>barLine(r[0],r[1],100,r[1]===100?"var(--good)":"color-mix(in srgb, var(--good) 65%, var(--surface))",`${r[1]}%`)).join("")}</div></section>
+    <section><h3>Where he needs a little support</h3><div class="bars" style="margin-top:10px">${W.low.map(r=>barLine(r[0],r[1],100,"var(--gold)",`${r[1]}%`)).join("")}</div>
+      <ul>${W.support.map(s=>`<li><b>${s[0]}.</b> ${s[1]}</li>`).join("")}</ul></section>
+    <section><h3>How you can help at home</h3><ul>${W.home.map(x=>`<li>${x}</li>`).join("")}</ul></section>
+    <section><h3>Let us meet</h3><div class="callout" style="margin-top:8px">We would be glad to talk with you at the Parent–Teacher Meeting on Sunday, 22 November, 10:00 AM – 1:00 PM.</div></section>
+    <p class="small muted">Warm regards,<br>${W.by}</p>
+   </div></div>
+   <button class="btn block no-print" data-act="download" data-kind="wellbeing">${svg("download")} Download Wellbeing Report (PDF)</button>`;
+ }},
+
+ /* ---------- QUESTION BANK ---------- */
+ qbank:{ title:()=> "Question Bank", render(){
+  const total=SUBJECTS.reduce((a,s)=>a+s.chapters.reduce((b,c)=>b+c.qs.length,0),0);
+  return `<div class="card flat"><p class="eyebrow">Class VIII</p><h2 style="font-size:18px;margin-top:4px">Previous year questions and notes</h2><p class="small muted" style="margin-top:4px">${total} questions from the last 5 years, with most repeated and most important questions marked. Notes for every chapter.</p></div>
+  <div class="subj-grid">${SUBJECTS.map(s=>`<button class="subj" ${go("subject",{s:s.id})}><span class="dot" style="background:${s.color}">${s.name[0]}</span><div><h3>${s.name}</h3><p class="small muted">${s.chapters.length} chapters · ${s.chapters.reduce((a,c)=>a+c.qs.length,0)} questions</p></div></button>`).join("")}</div>
+  <div class="section-h"><h2>Most repeated this year</h2></div>
+  <div class="stack">${SUBJECTS.flatMap(s=>s.chapters.flatMap(c=>c.qs.map(q=>({q,s,c})))).sort((a,b)=>b.q.y.length-a.q.y.length).slice(0,4).map(x=>qCard(x.q,x.s,x.c,true)).join("")}</div>`;
+ }},
+ subject:{ title:p=>SUBJECTS.find(s=>s.id===p.s).name, render(p){
+  const s=SUBJECTS.find(x=>x.id===p.s);
+  return `<div class="card flat stack"><div class="row"><span class="subj" style="padding:0;border:0;box-shadow:none;background:none"><span class="dot" style="background:${s.color}">${s.name[0]}</span></span><div class="grow"><h2 style="font-size:18px">${s.name}</h2><p class="small muted">${s.chapters.length} chapters</p></div></div>
+   <p class="eyebrow">Download for the whole subject</p>${dlGrid(s.id,0)}</div>
+   <div class="section-h"><h2>Chapters</h2></div>
+   <div class="card flat" style="padding-block:4px"><div class="list">${s.chapters.map(c=>`<button class="list-item" ${go("chapter",{s:s.id,c:c.n})}><span class="chip brand num">Ch ${c.n}</span><div class="grow"><p style="font-weight:600;font-size:14px">${esc(c.name)}</p><p class="small muted">${c.qs.length} questions · ${c.qs.filter(q=>q.y.length>1).length} repeated · ${c.qs.filter(q=>q.imp).length} important</p></div>${svg("chev","chev")}</button>`).join("")}</div></div>`;
+ }},
+ chapter:{ title:p=>`Chapter ${p.c}`, render(p){
+  const s=SUBJECTS.find(x=>x.id===p.s), c=s.chapters.find(x=>x.n===p.c); const tab=state.qbTab;
+  let list=c.qs, body="";
+  if(tab==="pyq"){ const yrs=[2025,2024,2023,2022,2021]; body=yrs.map(y=>{const qs=c.qs.filter(q=>q.y.includes(y)); return qs.length?`<p class="eyebrow" style="margin-top:4px">${y} · ${qs.length} question${qs.length>1?"s":""}</p>${qs.map(q=>qCard(q,s,c)).join("")}`:"";}).join(""); }
+  else if(tab==="rep"){ list=c.qs.filter(q=>q.y.length>1).sort((a,b)=>b.y.length-a.y.length); body=list.map(q=>qCard(q,s,c,true)).join("")||`<p class="empty">No repeated questions yet.</p>`; }
+  else { list=c.qs.filter(q=>q.imp); body=list.map(q=>qCard(q,s,c)).join(""); }
+  return `<div class="card flat"><p class="eyebrow">${s.name} · Chapter ${c.n}</p><h2 style="font-size:18px;margin-top:4px">${esc(c.name)}</h2><p class="small muted" style="margin-top:6px">${esc(c.summary)}</p></div>
+   <div class="card flat stack"><p class="eyebrow">Download notes for this chapter</p>${dlGrid(s.id,c.n)}</div>
+   <div class="seg" role="group" aria-label="Question type">
+     <button data-act="qbtab" data-v="pyq" aria-pressed="${tab==="pyq"}">PYQs (5 yrs)</button>
+     <button data-act="qbtab" data-v="rep" aria-pressed="${tab==="rep"}">Most repeated</button>
+     <button data-act="qbtab" data-v="imp" aria-pressed="${tab==="imp"}">Important</button></div>
+   <div class="stack">${body}</div>`;
+ }},
+ notes:{ title:p=>NOTE_TYPES[p.t].label, render(p){
+  const s=SUBJECTS.find(x=>x.id===p.s); const chs=p.c?[s.chapters.find(x=>x.n===p.c)]:s.chapters; const T=NOTE_TYPES[p.t];
+  const block=c=>{
+    if(p.t==="summary") return `<section><h3>Ch ${c.n} · ${esc(c.name)}</h3><p style="margin-top:6px">${esc(c.summary)}</p><ul>${c.points.slice(0,3).map(x=>`<li>${esc(x)}</li>`).join("")}</ul></section>`;
+    if(p.t==="points") return `<section><h3>Ch ${c.n} · ${esc(c.name)}</h3><ul>${c.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></section>`;
+    if(p.t==="revision") return `<section><h3>Ch ${c.n} · ${esc(c.name)}</h3>${c.formulas.length?`<p class="eyebrow" style="margin-top:8px">Formulas and rules</p><ul>${c.formulas.map(x=>`<li><b>${esc(x)}</b></li>`).join("")}</ul>`:""}<p class="eyebrow" style="margin-top:10px">Quick recall</p><ul>${c.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul><p class="eyebrow" style="margin-top:10px">Self-check</p><ul>${c.qs.filter(q=>q.imp).slice(0,3).map(q=>`<li>${esc(q.q)}</li>`).join("")}</ul></section>`;
+    return `<section><h3>Ch ${c.n} · ${esc(c.name)}</h3><ol style="margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:8px">${c.qs.map(q=>`<li style="font-size:14px">${esc(q.q)} <span class="muted small">[${q.m} mark${q.m>1?"s":""} · ${q.y.join(", ")}${q.imp?" · ★ Important":""}]</span></li>`).join("")}</ol></section>`;
+  };
+  return `<div class="doc"><div class="doc-head"><p class="eyebrow">Veda Vidya Institute · ${T.label}</p><h2>${s.name}${p.c?` · Ch ${p.c}`:" · All chapters"}</h2><p>${p.c?esc(chs[0].name):`${chs.length} chapters`} · Class VIII</p></div>
+   <div class="doc-body">${chs.map(block).join("")}</div></div>
+   <button class="btn block no-print" data-act="download" data-kind="notes" data-label="${esc(T.label)}">${svg("download")} Download ${T.label} (PDF)</button>`;
+ }},
+
+ /* ---------- ATTENDANCE ---------- */
+ attendance:{ title:()=> "Attendance", render(p){
+  const seg=p.seg||state.attSeg||"overview"; state.attSeg=seg;
+  const segs=[["overview","Overview"],["timetable","Timetable"],["plan","Holidays & plan"]];
+  let body="";
+  if(seg==="overview"){
+    const P=pct(ATT.att,ATT.cond); const absentDays=ATT.days.filter(d=>d.st==="A").length;
+    body=`<div class="card"><div class="ring-wrap"><div class="ring">${ringSvg(P)}<div class="lbl"><div><b class="num">${Math.round(P)}%</b><span>overall</span></div></div></div>
+      <div class="stats"><div class="stat"><span class="muted">Classes conducted</span><b>${ATT.cond}</b></div><div class="stat"><span class="muted">Classes attended</span><b style="color:var(--good)">${ATT.att}</b></div><div class="stat"><span class="muted">Classes missed</span><b style="color:var(--bad)">${ATT.cond-ATT.att}</b></div><div class="stat"><span class="muted">Days absent</span><b>${absentDays}</b></div></div></div>
+      <p class="small" style="margin-top:14px"><span class="chip ${tone(P)==="good"?"good":"warn"}">${P>=85?"Excellent":"Needs attention"}</span> &nbsp;Required minimum is 75%. ${STUDENT.first} is well above it.</p></div>
+    <div class="section-h"><h2>Monthly attendance</h2><span class="small muted">Tap a month for details</span></div>
+    <div class="card flat" style="padding-block:4px"><div class="list">${[...ATT.months].reverse().map(m=>{const mp=pct(m.att,m.cond);const [y,mo]=m.key.split("-").map(Number);return `<button class="list-item" ${go("month",{m:m.key})}>
+      <div class="grow"><div class="row" style="justify-content:space-between"><p style="font-weight:600;font-size:14px">${MONTHS_L[mo-1]} ${y}</p><b class="num" style="color:${toneColor(mp)}">${Math.round(mp)}%</b></div>
+      <div class="bar" style="margin:8px 0 6px"><i style="width:${mp}%;background:${toneColor(mp)}"></i></div>
+      <p class="small muted num">${m.att} of ${m.cond} classes${m.holidays?` · ${m.holidays} holiday${m.holidays>1?"s":""}`:""}${m.key.endsWith("-11")?" · till today":""}</p></div>${svg("chev","chev")}</button>`}).join("")}</div></div>
+    <div class="section-h"><h2>Subject-wise</h2></div>
+    <div class="card"><div class="bars">${Object.entries(ATT.subj).map(([s,v])=>barLine(`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${SUBJ_COLOR[s]};margin-right:8px"></span>${s}`,v.att,v.cond,undefined,`${v.att}/${v.cond} · ${Math.round(pct(v.att,v.cond))}%`)).join("")}</div></div>`;
+  } else if(seg==="timetable"){
+    const dsel=state.ttDay ?? (TODAY.getDay()||1);
+    body=`<div class="hscroll" role="group" aria-label="Day">${[1,2,3,4,5,6].map(d=>`<button class="chipbtn" data-act="ttday" data-v="${d}" aria-pressed="${d===dsel}">${DOW[d]}${d===TODAY.getDay()?" · Today":""}</button>`).join("")}</div>
+    <div class="card" style="padding-block:4px">${TIMETABLE[dsel].map((s,i)=>`<div class="period"><div class="t">${TIMES[i]}</div><div><div class="row" style="gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:${SUBJ_COLOR[s]};flex:none"></span><h4>${s}</h4></div><p class="small muted" style="margin-top:2px">${TEACHERS[s]} · Room ${["201","204","Lab 1"][i]}</p></div></div>`).join("")}</div>
+    <p class="small muted">Classes run Monday to Saturday. Sunday is a holiday.</p>`;
+  } else {
+    const up=UPCOMING.filter(u=>pd(u.d)>=new Date(2026,10,22));
+    const kc={Holiday:"warn",Test:"bad",Exam:"bad",PTM:"brand"};
+    body=`<div class="section-h" style="margin:0"><h2>Upcoming</h2><span class="small muted">${up.filter(u=>u.k==="Holiday").length} holidays · ${up.filter(u=>u.k!=="Holiday").length} events</span></div>
+    <div class="card" style="padding-block:4px">${up.map(u=>{const d=pd(u.d);return `<div class="event"><div class="datebox"><b class="num">${d.getDate()}</b><span>${MONTHS[d.getMonth()]}</span></div><div><div class="row" style="justify-content:space-between;align-items:flex-start;gap:8px"><h4>${esc(u.t)}</h4><span class="chip ${kc[u.k]}">${u.k}</span></div><p class="small muted" style="margin-top:2px">${DOW[d.getDay()]} · ${esc(u.s)}</p></div></div>`}).join("")}</div>
+    <div class="section-h"><h2>Academic plan</h2></div>
+    <div class="stack">${SYLLABUS.map(([m,items])=>`<div class="card flat"><p class="eyebrow">${m}</p><ul style="margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px">${items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul></div>`).join("")}</div>`;
+  }
+  return `<div class="seg" role="group" aria-label="Attendance view">${segs.map(([k,l])=>`<button data-act="attseg" data-v="${k}" aria-pressed="${seg===k}">${l}</button>`).join("")}</div>${body}`;
+ }},
+ month:{ title:p=>{const [y,m]=p.m.split("-").map(Number);return `${MONTHS_L[m-1]} ${y}`}, render(p){
+  const [y,mo]=p.m.split("-").map(Number); const m=ATT.months.find(x=>x.key===p.m); const mp=pct(m.att,m.cond);
+  const days=ATT.days.filter(d=>d.key.startsWith(p.m)); const first=new Date(y,mo-1,1).getDay(); const dim=new Date(y,mo,0).getDate();
+  const cells=[]; for(let i=0;i<first;i++) cells.push(`<span></span>`);
+  for(let d=1; d<=dim; d++){ const k=`${p.m}-${String(d).padStart(2,"0")}`; const rec=days.find(x=>x.key===k); const st=rec?rec.st:"F"; cells.push(`<span class="d ${st} ${k===ymd(TODAY)?"today":""}" title="${k}">${d}</span>`); }
+  const log=days.filter(d=>d.st!=="N").reverse();
+  const lbl={P:["Present","good"],A:["Absent","bad"],H:["Holiday","warn"]};
+  return `<div class="card"><div class="ring-wrap"><div class="ring" style="width:96px;height:96px">${ringSvg(mp,96,10)}<div class="lbl"><div><b class="num" style="font-size:22px">${Math.round(mp)}%</b></div></div></div>
+    <div class="stats"><div class="stat"><span class="muted">Conducted</span><b>${m.cond}</b></div><div class="stat"><span class="muted">Attended</span><b style="color:var(--good)">${m.att}</b></div><div class="stat"><span class="muted">Missed</span><b style="color:var(--bad)">${m.cond-m.att}</b></div></div></div></div>
+   <div class="card stack"><div class="cal">${DOW.map(d=>`<span class="dow">${d[0]}</span>`).join("")}${cells.join("")}</div>
+    <div class="legend"><span><i style="background:var(--good-soft);border:1px solid var(--good)"></i>Present</span><span><i style="background:var(--bad)"></i>Absent</span><span><i style="background:var(--warn-soft);border:1px solid var(--warn)"></i>Holiday</span><span><i style="background:var(--surface-2);border:1px solid var(--line)"></i>Sunday</span></div></div>
+   <div class="section-h"><h2>Day by day</h2></div>
+   <div class="card flat" style="padding-block:4px"><div class="list">${log.map(d=>`<div class="list-item"><div class="datebox" style="width:46px;flex:none"><b class="num" style="font-size:16px">${d.date.getDate()}</b><span>${DOW[d.dow]}</span></div><div class="grow"><p class="small" style="font-weight:600">${d.st==="H"?esc(d.note):d.subj.join(" · ")}</p><p class="small muted">${d.st==="H"?"No classes":`${d.subj.length} classes`}</p></div><span class="chip ${lbl[d.st][1]}">${lbl[d.st][0]}</span></div>`).join("")}</div></div>`;
+ }},
+
+ /* ---------- DPP ---------- */
+ dpp:{ title:()=> "Daily Practice (DPP)", render(){
+  const D=DPP_TODAY, done=state.dpp.completed; const hist=DPP_HISTORY;
+  const comp=hist.filter(h=>h.done).length;
+  return `<div class="card flat"><p class="eyebrow">Built from your weak topics</p><p class="small" style="margin-top:6px">Your daily questions come from the weak topics in your <b>Faculty Report</b> for the Physics Unit Test (30 Oct). Each topic stays in your DPP until it turns strong.</p></div>
+  <div class="card stack" style="border-color:var(--brand)">
+    <div class="row" style="justify-content:space-between"><span class="chip brand">Today · Day ${D.day} of ${D.of}</span>${done?`<span class="chip good">Completed</span>`:`<span class="chip warn">Pending</span>`}</div>
+    <h3 style="font-size:17px">${esc(D.title)}</h3>
+    <p class="small muted">${D.qs.length} questions · about 10 minutes · topics: Upthrust, Spring balance, Nature of force, Net force</p>
+    <div class="progress-steps">${Array.from({length:D.of},(_,i)=>`<i class="${i<D.day-(done?0:1)?"on":""}"></i>`).join("")}</div>
+    ${done?`<div class="row"><div class="big-score num" style="font-size:32px">${state.dpp.score}/${D.qs.length}</div><button class="btn ghost" style="margin-left:auto" ${go("dppResult")}>Review answers</button></div>`:`<button class="btn block" data-act="dppstart">Start today's DPP</button>`}
+  </div>
+  <div class="section-h"><h2>Weak topic progress</h2></div>
+  <div class="card stack">${DPP_TOPICS.map(t=>{const last=t.hist[t.hist.length-1]; const st={weak:["Weak","bad"],improving:["Improving","warn"],strong:["Now strong","good"]}[t.status];return `<div class="stack-sm"><div class="row" style="justify-content:space-between;gap:8px"><p style="font-weight:600;font-size:14px" class="grow">${esc(t.t)}</p><span class="chip ${st[1]}">${st[0]}</span></div>
+    <div class="bar"><i style="width:${last}%;background:${toneColor(last)}"></i></div><p class="small muted num">${t.hist.map(h=>h+"%").join(" → ")}</p></div>`}).join("")}</div>
+  <div class="section-h"><h2>DPP history</h2><span class="small muted">${comp} of ${hist.length} completed</span></div>
+  <div class="card flat" style="padding-block:4px"><div class="list">${hist.map(h=>`<div class="list-item"><div class="datebox" style="width:52px;flex:none;padding:6px 2px"><b class="num" style="font-size:15px">${h.d.split(" ")[0]}</b><span>${h.d.split(" ")[1]}</span></div><div class="grow"><p class="small" style="font-weight:600">${esc(h.t)}</p><p class="small muted num">${h.done?`Score ${h.s}/${h.of}`:"Not attempted"}</p></div><span class="chip ${h.done?"good":"bad"}">${h.done?"Completed":"Not completed"}</span></div>`).join("")}</div></div>`;
+ }},
+ dppQuiz:{ title:()=> "Today's DPP", render(){
+  const D=DPP_TODAY, s=state.dpp, i=s.i, q=D.qs[i]; const sel=s.answers[i];
+  return `<div class="progress-steps">${D.qs.map((_,k)=>`<i class="${k<=i?"on":""}"></i>`).join("")}</div>
+   <div class="row" style="justify-content:space-between"><span class="small muted">Question ${i+1} of ${D.qs.length}</span><span class="chip brand">${esc(q.topic)}</span></div>
+   <h2 style="font-size:18px;line-height:1.4">${esc(q.q)}</h2>
+   <div class="stack-sm">${q.o.map((o,k)=>`<button class="opt" data-act="dppopt" data-v="${k}" aria-pressed="${sel===k}"><span class="k">${"ABCD"[k]}</span><span>${esc(o)}</span></button>`).join("")}</div>
+   ${s.showHint?`<div class="hint"><b>Hint:</b> ${esc(q.hint)}</div>`:`<button class="btn ghost" data-act="dpphint">${svg("bulb")} Show hint</button>`}
+   <div class="btn-row">${i>0?`<button class="btn ghost" data-act="dppprev">Previous</button>`:`<span></span>`}<button class="btn" data-act="dppnext" ${sel===undefined?'aria-disabled="true" style="opacity:.5"':""}>${i===D.qs.length-1?"Submit":"Next"}</button></div>`;
+ }},
+ dppResult:{ title:()=> "DPP Result", render(){
+  const D=DPP_TODAY, s=state.dpp;
+  return `<div class="card" style="text-align:center"><p class="eyebrow">${esc(D.title)}</p><div class="big-score num" style="margin-top:8px">${s.score}/${D.qs.length}</div><p class="small muted" style="margin-top:6px">${s.score>=5?"Excellent work! Upthrust is getting stronger.":s.score>=3?"Good effort. Read the solutions below for the ones you missed.":"Keep going. Go through each solution and try again tomorrow."}</p></div>
+   <div class="section-h"><h2>Solutions</h2></div>
+   ${D.qs.map((q,i)=>{const ok=s.answers[i]===q.a;return `<div class="card stack-sm"><div class="row" style="justify-content:space-between"><span class="small muted">Q${i+1} · ${esc(q.topic)}</span><span class="chip ${ok?"good":"bad"}">${ok?"Correct":"Incorrect"}</span></div><p style="font-weight:600;font-size:14px">${esc(q.q)}</p>
+     ${!ok&&s.answers[i]!==undefined?`<div class="opt wrong" style="padding:10px"><span class="k">${"ABCD"[s.answers[i]]}</span><span class="small">Your answer: ${esc(q.o[s.answers[i]])}</span></div>`:""}
+     <div class="opt right" style="padding:10px"><span class="k">${"ABCD"[q.a]}</span><span class="small">${esc(q.o[q.a])}</span></div>
+     <p class="small"><b>Solution:</b> ${esc(q.sol)}</p>
+     <button class="ask" style="font-size:13px;color:var(--brand);font-weight:600;align-self:flex-start;display:inline-flex;gap:6px;align-items:center" data-act="askq" data-q="${esc(q.q)}">${svg("spark").replace('class=""','style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2"')} Ask AI to explain</button></div>`}).join("")}
+   <button class="btn block" data-tab="dpp">Back to DPP</button>`;
+ }},
+
+ /* ---------- AI ---------- */
+ ai:{ title:()=> "Ask AI", render(){
+  const subs=["All","Physics","Chemistry","Biology","Maths"];
+  const sug=AI_SUGGEST.filter(s=>state.aiSubj==="All"||s.subj===state.aiSubj);
+  const msgs=state.chat.map(m=>m.typing?`<div class="msg ai"><span class="typing"><i></i><i></i><i></i></span></div>`:`<div class="msg ${m.me?"me":"ai"}">${m.img?`<img src="${m.img}" alt="Uploaded question photo">`:""}${m.me?esc(m.t):m.t.replace(/\n/g,"<br>")}</div>`).join("");
+  return `<div class="card flat row"><div class="ic" style="width:42px;height:42px;border-radius:12px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;flex:none">${svg("spark").replace('class=""','style="width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2"')}</div><div class="grow"><h3 style="font-size:15px">Veda Vidya AI Tutor</h3><p class="small muted">Answers from your class notes and question bank. Gives hints first, so you learn to solve it yourself.</p></div></div>
+   <div class="hscroll" role="group" aria-label="Subject">${subs.map(s=>`<button class="chipbtn" data-act="aisubj" data-v="${s}" aria-pressed="${state.aiSubj===s}">${s}</button>`).join("")}</div>
+   <div class="chat" id="chat">${msgs || `<div class="msg ai">Hi ${STUDENT.first}! 👋 Ask me any doubt from your notes or question bank. Tap a suggested question below to try.</div>`}</div>
+   <div class="stack-sm"><p class="eyebrow">Suggested questions</p><div class="suggest">${sug.map(s=>`<button data-act="aisug" data-q="${esc(s.q)}">${svg("spark").replace('class=""','style="width:16px;height:16px;flex:none;fill:none;stroke:var(--brand);stroke-width:2"')}<span>${esc(s.q)}</span><span class="tag chip">${s.subj}</span></button>`).join("")}</div></div>
+   <div style="height:64px"></div>
+   <form class="composer" id="composer"><label class="roundbtn" for="photo" title="Upload a photo of a question">${svg("camera")}<span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Upload photo</span></label><input type="file" id="photo" accept="image/*" hidden>
+    <input type="text" id="ask" placeholder="Type your doubt…" autocomplete="off" aria-label="Type your doubt"><button class="roundbtn primary" type="submit" aria-label="Send">${svg("send")}</button></form>`;
+ }, after(){
+  $("#composer").onsubmit=e=>{e.preventDefault(); const v=$("#ask").value.trim(); if(v) askAI(v);};
+  $("#photo").onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ state.chat.push({me:true,t:"Can you help me with this question?",img:r.result}); replyAI("📷 I can see your question. <b>Hint 1:</b> First underline what is given and what is asked. <b>Hint 2:</b> Find the chapter it belongs to and recall its main formula or idea.\n\nIn the full app, I'll read the question from your photo and walk you through it step by step."); }; r.readAsDataURL(f); };
+  const c=$("#chat"); if(state.chat.length) c.lastElementChild?.scrollIntoView({block:"end"});
+ }},
+
+ /* ---------- NOTIFICATIONS ---------- */
+ notifs:{ title:()=> "Notifications", render(){
+  const unread=state.notifs.filter(n=>n.unread).length;
+  return `<div class="row" style="justify-content:space-between"><p class="small muted">${unread?`${unread} unread`:"All caught up"}</p>${unread?`<button class="small" style="color:var(--brand);font-weight:600" data-act="readall">Mark all as read</button>`:""}</div>
+   <div class="stack-sm">${state.notifs.map(n=>`<button class="notif ${n.unread?"unread":""}" data-act="opennotif" data-id="${n.id}"><span class="ic">${svg(n.ic)}</span><div class="grow"><h4>${esc(n.t)}</h4><p class="small muted">${esc(n.s)}</p><p class="small muted" style="margin-top:4px;font-size:12px">${n.w}</p></div></button>`).join("")}</div>`;
+ }}
+};
+
+const NOTE_TYPES = { summary:{label:"Summary Notes",d:"One-page overview"}, points:{label:"Important Points",d:"Key facts to remember"}, revision:{label:"Revision Notes",d:"Formulas and quick recall"}, qbank:{label:"Question Bank",d:"All PYQs with years"} };
+function dlGrid(s,c){ return `<div class="dl-grid">${Object.entries(NOTE_TYPES).map(([k,v])=>`<button class="dl" ${go("notes",{s,c,t:k})}>${svg("download")}<b>${v.label}</b><span>${v.d}</span></button>`).join("")}</div>`; }
+function qCard(q,s,c,showSrc){
+  const rep=q.y.length;
+  return `<div class="q"><p>${esc(q.q)}</p><div class="tags"><span class="chip">${q.m} mark${q.m>1?"s":""}</span>${rep>1?`<span class="chip warn">Repeated ${rep}×</span>`:""}${q.imp?`<span class="chip brand">★ Important</span>`:""}<span class="chip">${q.y.join(" · ")}</span>${showSrc?`<span class="chip">${s.name} · Ch ${c.n}</span>`:""}</div>
+   <button class="ask" data-act="askq" data-q="${esc(q.q)}" data-s="${s.id}" data-c="${c.n}">${svg("spark")} Ask AI for a hint</button></div>`;
+}
+function reportCards(id){
+  return `<div class="card report-card"><div class="row"><div class="ic" style="background:var(--brand-soft);color:var(--brand)">${svg("users")}</div><div class="grow"><h3>Parent Report</h3><p class="small muted">Result summary and how to help at home</p></div></div>
+     <div class="btn-row"><button class="btn ghost" ${go("parentReport",{id})}>${svg("eye")} View</button><button class="btn" data-act="download" data-kind="parent" data-id="${id}">${svg("download")} Download</button></div></div>
+   <div class="card report-card"><div class="row"><div class="ic" style="background:var(--warn-soft);color:var(--warn)">${svg("report")}</div><div class="grow"><h3>Faculty Report</h3><p class="small muted">Strong and weak topics, and the faculty's action plan for ${STUDENT.first}</p></div></div>
+     <div class="btn-row"><button class="btn ghost" ${go("facultyReport",{id})}>${svg("eye")} View</button><button class="btn" data-act="download" data-kind="faculty" data-id="${id}">${svg("download")} Download</button></div></div>`;
+}
+
+/* ============================== ACTIONS ============================== */
+function askAI(text, s, c){
+  state.chat.push({me:true,t:text});
+  const m=AI_SUGGEST.find(x=>x.q===text);
+  if(m) return replyAI(m.a);
+  const sub=s&&SUBJECTS.find(x=>x.id===s), ch=sub&&sub.chapters.find(x=>x.n===+c);
+  if(ch) return replyAI(`Let's think it through step by step.\n\n<b>Hint 1:</b> This question is from <b>${esc(sub.name)} · Ch ${ch.n} · ${esc(ch.name)}</b>. Start with the key idea: ${esc(ch.points[0])}\n\n<b>Hint 2:</b> ${esc(ch.points[1])}\n\n${ch.formulas.length?`<b>Useful formula:</b> ${esc(ch.formulas[0])}\n\n`:""}Now try writing your answer using these hints. Send it to me and I'll check it.`);
+  replyAI(`Good question! <b>Hint:</b> First find which chapter this belongs to, then recall its main idea or formula.\n\nIn the full app, I'll answer any doubt like this from your Veda Vidya notes, step by step. For this demo, try one of the suggested questions below.`);
+}
+function replyAI(html){
+  state.chat.push({typing:true}); if(cur().name==="ai") render(); else nav("ai",{},{root:true});
+  setTimeout(()=>{ state.chat=state.chat.filter(m=>!m.typing); state.chat.push({t:html}); if(cur().name==="ai") render(); }, 1100);
+}
+const ACTIONS = {
+  download(t){
+    const k=t.dataset.kind;
+    const label={parent:"Parent Report",faculty:"Faculty Report",wellbeing:"Wellbeing Report",notes:t.dataset.label}[k];
+    const target={parent:["parentReport",{id:t.dataset.id}],faculty:["facultyReport",{id:t.dataset.id}],wellbeing:["wellbeing",{}]}[k];
+    if(target && cur().name!==target[0]) nav(target[0],target[1]);
+    toast(`Preparing ${label} PDF…`);
+    setTimeout(()=>{ try{ window.print(); }catch(e){} }, 400);
+  },
+  qbtab(t){ state.qbTab=t.dataset.v; render(); },
+  attseg(t){ cur().params={...cur().params,seg:t.dataset.v}; state.attSeg=t.dataset.v; render(); },
+  ttday(t){ state.ttDay=+t.dataset.v; render(); },
+  dppstart(){ state.dpp={answers:{},i:0,showHint:false,submitted:false,completed:false}; nav("dppQuiz"); },
+  dppopt(t){ state.dpp.answers[state.dpp.i]=+t.dataset.v; render(); },
+  dpphint(){ state.dpp.showHint=true; render(); },
+  dppprev(){ state.dpp.i--; state.dpp.showHint=false; render(); },
+  dppnext(){ const s=state.dpp; if(s.answers[s.i]===undefined){ toast("Choose an answer first."); return; }
+    if(s.i<DPP_TODAY.qs.length-1){ s.i++; s.showHint=false; render(); window.scrollTo(0,0); return; }
+    s.score=DPP_TODAY.qs.reduce((a,q,i)=>a+(s.answers[i]===q.a?1:0),0); s.completed=true;
+    if(!DPP_HISTORY.find(h=>h.today)) DPP_HISTORY.unshift({d:"21 Nov",t:DPP_TODAY.title,s:s.score,of:DPP_TODAY.qs.length,done:true,today:true});
+    state.stack=[{name:"dpp",params:{}},{name:"dppResult",params:{}}]; render(); window.scrollTo(0,0); toast("DPP submitted"); },
+  aisubj(t){ state.aiSubj=t.dataset.v; render(); },
+  aisug(t){ askAI(t.dataset.q); },
+  askq(t){ askAI(t.dataset.q, t.dataset.s, t.dataset.c); },
+  readall(){ state.notifs.forEach(n=>n.unread=false); render(); },
+  opennotif(t){ const n=state.notifs.find(x=>x.id===+t.dataset.id); n.unread=false; const [name,p]=n.go; if(name==="attendance"){ state.attSeg=p.seg||"overview"; } nav(name,p); }
+};
+
+render();
+</script>
