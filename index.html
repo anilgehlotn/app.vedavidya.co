@@ -1,3 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Veda Vidya student app: reports, academics, attendance, daily practice and AI tutor.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Veda Vidya">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
 <title>Veda Vidya</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#f4f3f8">
@@ -16,22 +31,67 @@
   --r-xl:28px; --r-lg:22px; --r-md:16px;
 }
 *{box-sizing:border-box}
-html,body{height:100%}
-body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0;text-align:inherit}
-input{font:inherit;color:inherit}
+html{box-sizing:border-box;height:100%;overflow:hidden}
+body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0;text-align:inherit;transition:transform .12s ease,opacity .12s}
+button:active{transform:scale(.97)}
+.nav button:active{transform:scale(.9)}
+input{font:inherit;color:inherit;font-size:16px;-webkit-user-select:text;user-select:text}
 :focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:10px}
 h1,h2,h3,h4{margin:0;font-weight:500;letter-spacing:-.015em;text-wrap:balance}
 p{margin:0}
 .num{font-variant-numeric:tabular-nums}
 svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
-#app{max-width:480px;margin:0 auto;min-height:100%;position:relative;display:flex;flex-direction:column}
+/* device shell: full screen on a phone, a phone frame on a wide screen */
+#device{position:relative;height:100%;max-width:480px;margin:0 auto;background:var(--bg);overflow:hidden}
+#app{position:absolute;inset:0;display:flex;flex-direction:column}
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none;display:flex;flex-direction:column}
+.screen::-webkit-scrollbar{display:none}
+.statusbar{display:none}
+@media (min-width:640px){
+  body{background:radial-gradient(circle at 30% 20%,#e9e4ff,#d9d2fb 60%,#cfc6f7);display:grid;place-items:center}
+  #device{width:390px;height:min(844px,calc(100% - 32px));border-radius:54px;border:11px solid #111118;box-shadow:0 30px 80px rgba(40,20,90,.35),0 0 0 2px #2a2a33}
+  .statusbar{display:flex;position:absolute;z-index:40;top:0;left:0;right:0;height:46px;align-items:center;justify-content:space-between;padding:0 30px 0 34px;font-size:15px;font-weight:600;pointer-events:none}
+  .statusbar .island{position:absolute;left:50%;top:9px;transform:translateX(-50%);width:112px;height:31px;border-radius:20px;background:#111118}
+  .statusbar svg{height:12px;width:auto;fill:#111118}
+  .hdr{padding-top:50px!important}
+  .login{padding-top:56px!important}
+  .nav{bottom:20px!important}
+  .composer{bottom:98px!important}
+}
+/* screen transitions */
+#view.anim-push{animation:pushIn .32s cubic-bezier(.2,.8,.2,1)}
+#view.anim-pop{animation:popIn .3s cubic-bezier(.2,.8,.2,1)}
+#view.anim-fade{animation:fadeIn .26s ease}
+@keyframes pushIn{from{transform:translateX(28%);opacity:0}to{transform:none;opacity:1}}
+@keyframes popIn{from{transform:translateX(-22%);opacity:0}to{transform:none;opacity:1}}
+@keyframes fadeIn{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+/* splash */
+.splash{position:absolute;inset:0;z-index:60;background:var(--lav);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .4s ease,transform .4s ease}
+.splash.out{opacity:0;transform:scale(1.04);pointer-events:none}
+.splash .mark{width:96px;height:96px;border-radius:30px;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:46px;font-weight:600;animation:pop .6s cubic-bezier(.2,1.4,.4,1)}
+.splash h1{font-size:30px;font-weight:600;letter-spacing:-.02em;animation:fadeIn .5s .15s both}
+.splash p{font-size:14px;color:var(--ink-2);animation:fadeIn .5s .25s both}
+.splash .loader{width:120px;height:5px;border-radius:9px;background:rgba(17,17,24,.15);overflow:hidden;margin-top:10px}
+.splash .loader i{display:block;height:100%;width:40%;border-radius:9px;background:var(--ink);animation:load 1.1s ease-in-out infinite}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+@keyframes load{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+/* bottom sheet */
+.sheet-wrap{position:absolute;inset:0;z-index:45;display:flex;flex-direction:column;justify-content:flex-end}
+.sheet-wrap .scrim{position:absolute;inset:0;background:rgba(17,17,24,.38);animation:fadeOnly .2s ease}
+.sheet{position:relative;background:var(--surface);border-radius:30px 30px 0 0;padding:10px 20px calc(24px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px;animation:sheetUp .32s cubic-bezier(.2,.9,.25,1)}
+.sheet .grab{width:44px;height:5px;border-radius:9px;background:#dcdae4;align-self:center}
+.sheet .file{display:flex;gap:14px;align-items:center}
+.sheet .file .ficon{width:56px;height:64px;border-radius:14px;display:grid;place-items:center;font-size:12px;font-weight:700;position:relative}
+.sheet ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px;font-size:15px}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
+@keyframes fadeOnly{from{opacity:0}to{opacity:1}}
 
 /* header */
-.hdr{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:8px;
-  padding-block:14px 10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.hdr{position:sticky;top:0;z-index:20;background:var(--bg);display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:8px;
+  padding-top:calc(12px + env(safe-area-inset-top,0px));padding-bottom:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .hdr .mid{text-align:center;min-width:0}
 .hdr .mid b{display:block;font-size:19px;font-weight:500}
 .hdr .mid span{font-size:14px;color:var(--ink-2)}
@@ -48,7 +108,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 #view{flex:1;padding-block:6px 120px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px;min-width:0}
 
 /* floating nav */
-.nav{position:fixed;z-index:25;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));width:calc(100% - 32px);max-width:448px;
+.nav{position:absolute;z-index:25;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom,0px));
   background:var(--ink);border-radius:999px;padding:6px;display:grid;grid-template-columns:repeat(6,1fr);align-items:center;box-shadow:0 10px 30px rgba(17,17,24,.25)}
 .nav button{height:54px;display:grid;place-items:center;color:#fff;border-radius:999px}
 .nav button[aria-current="page"]{background:var(--surface);color:var(--ink)}
@@ -219,7 +279,7 @@ tr:last-child td{border-bottom:0}
 .typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:blink 1s infinite}
 .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
 @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
-.composer{position:fixed;z-index:24;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:448px;bottom:calc(92px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;align-items:center}
+.composer{position:absolute;z-index:24;left:16px;right:16px;bottom:calc(92px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;align-items:center}
 .composer input{flex:1;min-width:0;border:0;background:var(--surface);border-radius:999px;padding:16px 20px;box-shadow:0 4px 18px rgba(17,17,24,.08);outline:none}
 .composer .rbtn{width:52px;height:52px}
 
@@ -230,7 +290,7 @@ tr:last-child td{border-bottom:0}
 .notif .new{width:9px;height:9px;border-radius:50%;background:var(--bad);flex:none;margin-top:6px}
 
 /* login */
-.login{min-height:100%;display:flex;flex-direction:column;gap:18px;padding-block:calc(env(safe-area-inset-top,0px) + 24px) 24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.login{gap:18px;padding-top:calc(env(safe-area-inset-top,0px) + 24px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 24px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .login .hero{min-height:280px;justify-content:flex-end}
 .login .hero h2{font-size:40px;max-width:80%}
 .logo{width:56px;height:56px;border-radius:18px;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:600;font-size:24px}
@@ -244,15 +304,21 @@ tr:last-child td{border-bottom:0}
 .demo-hint{font-size:14px;text-align:center;color:var(--muted)}
 .demo-hint code{font-family:ui-monospace,Menlo,monospace;color:var(--ink);background:var(--surface);padding:2px 8px;border-radius:8px}
 
-.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(16px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:50;max-width:calc(100% - 32px);text-align:center}
+.toast{position:absolute;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(16px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:50;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 @media (max-width:360px){.hero h2{font-size:30px}.plan{grid-template-columns:1fr}.plan .tall{grid-row:auto;min-height:0}.stat3 .v{font-size:21px}}
-@media print{body::before,.hdr,.nav,.composer,.toast,.no-print{display:none!important}#view{padding:0!important}body{background:#fff}.doc-head{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+@media print{html,body,#device,#app,.screen{height:auto!important;overflow:visible!important;position:static!important;border:0!important;box-shadow:none!important;width:auto!important}.statusbar,.splash,.sheet-wrap,.hdr,.nav,.composer,.toast,.no-print{display:none!important}#view{padding:0!important}body{background:#fff}.doc-head{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style>
-
-<div id="app"></div>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</head>
+<body>
+<div id="device">
+  <div class="statusbar" aria-hidden="true"><span>9:41</span><span class="island"></span><span style="display:flex;gap:6px;align-items:center"><svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 26 12"><rect x="0.5" y="0.5" width="22" height="11" rx="3" fill="none" stroke="#111118"/><rect x="2" y="2" width="17" height="8" rx="2"/><rect x="23.5" y="4" width="2" height="4" rx="1"/></svg></span></div>
+  <div id="app"></div>
+  <div id="sheet"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="splash" id="splash" hidden><div class="mark">V</div><h1>Veda Vidya</h1><p>Learn · Practise · Grow</p><div class="loader"><i></i></div></div>
+</div>
 
 <script>
 /* ============================== DEMO DATA ============================== */
@@ -572,15 +638,18 @@ const TABS = [
 const state = { loggedIn: store.get("vv_login")==="1", stack:[], notifs: NOTIFS.map(n=>({...n})), chat:[], dpp:{answers:{}, i:0, showHint:false, completed:false}, examId:EX_SORTED[0].id, qbFilter:"all", attSeg:"overview" };
 
 function nav(name, params={}, opts={}){
-  if(opts.root) state.stack=[{name,params}]; else state.stack.push({name,params});
-  render(); window.scrollTo(0,0);
+  if(opts.root){ state.anim = state.stack[0]?.name===name && state.stack.length===1 ? "" : "fade"; state.stack=[{name,params}]; }
+  else { state.anim="push"; state.stack.push({name,params}); }
+  render();
 }
-function back(){ if(state.stack.length>1){ state.stack.pop(); render(); window.scrollTo(0,0);} }
+function back(){ if(state.stack.length>1){ state.stack.pop(); state.anim="pop"; render(); } }
+const haptic = () => { try{ navigator.vibrate && navigator.vibrate(8); }catch(e){} };
 const cur = () => state.stack[state.stack.length-1];
 
+let lastKey="";
 function render(){
   const app=$("#app");
-  if(!state.loggedIn){ app.innerHTML = Login(); bindLogin(); return; }
+  if(!state.loggedIn){ app.innerHTML = Login(); bindLogin(); lastKey="login"; return; }
   if(!state.stack.length) state.stack=[{name:"reports",params:{}}];
   const {name,params} = cur(); const scr = SCREENS[name];
   const tabId = state.stack[0].name;
@@ -590,24 +659,28 @@ function render(){
   const right = scr.right ? scr.right(params) : bell;
   const left = isRoot ? `<button class="avatar" data-tab="profile" aria-label="Profile"><span>${STUDENT.initials}</span></button>` : `<button class="circ plain" data-act="back" aria-label="Back">${svg("back")}</button>`;
   const mid = (isRoot && name==="reports") ? `<div class="mid"><b>Hello, ${STUDENT.first}</b><span>Today ${TODAY.getDate()} ${MONTHS[TODAY.getMonth()]}.</span></div>` : `<div class="mid"><h1>${esc(scr.title(params))}</h1></div>`;
-  app.innerHTML = `<header class="hdr">${left}${mid}${right}</header>
-   <main id="view">${scr.render(params)}</main>
+  const key = state.stack.length+"|"+name+"|"+JSON.stringify(params);
+  const prevTop = (key===lastKey && !state.forceTop) ? ($(".screen")?.scrollTop||0) : 0;
+  app.innerHTML = `<div class="screen"><header class="hdr">${left}${mid}${right}</header>
+   <main id="view" class="${state.anim?"anim-"+state.anim:""}">${scr.render(params)}</main></div>
    <nav class="nav" aria-label="Main">${TABS.map(t=>`<button data-tab="${t.id}" aria-label="${t.label}" ${t.id===tabId?'aria-current="page"':""}>${svg(t.ic)}<span class="lbl">${t.label}</span></button>`).join("")}</nav>`;
+  $(".screen").scrollTop = prevTop; lastKey=key; state.anim=""; state.forceTop=false;
   scr.after && scr.after(params);
 }
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-tab],[data-go],[data-act]"); if(!t) return;
+  haptic();
   if(t.dataset.tab){ nav(t.dataset.tab,{}, {root:true}); return; }
   if(t.dataset.go){ nav(t.dataset.go, t.dataset.p?JSON.parse(t.dataset.p):{}); return; }
   const a=t.dataset.act;
   if(a==="back") back(); else if(a==="notifs") nav("notifs");
-  else if(a==="logout"){ state.loggedIn=false; store.del("vv_login"); state.stack=[]; render(); }
+  else if(a==="logout"){ state.anim="fade"; state.loggedIn=false; store.del("vv_login"); state.stack=[]; render(); }
   else if(ACTIONS[a]) ACTIONS[a](t, e);
 });
 const go = (name,p={}) => `data-go="${name}" data-p='${esc(JSON.stringify(p))}'`;
 
 /* ============================== LOGIN ============================== */
-function Login(){ return `<div class="login">
+function Login(){ return `<div class="screen login">
    <div class="hero"><div class="logo">V</div>${deco("#fdc46a","#ffffff","#111118")}<h2>Veda Vidya</h2><p class="sub">Reports, notes, attendance and daily practice, all in one app.</p></div>
    <form class="stack" id="loginForm" novalidate>
      <div class="field"><label for="u">Username</label><div class="inp"><input id="u" autocomplete="username" autocapitalize="none" placeholder="Enter your username"></div></div>
@@ -615,14 +688,16 @@ function Login(){ return `<div class="login">
      <p class="err" id="err" hidden></p>
      <button class="btn block" type="submit">Log in</button>
      <p class="demo-hint">Demo login: <code>student</code> · <code>veda123</code></p>
-   </form></div>`; }
+   </form>
+   ${canInstall()?`<button class="tile t-white" data-act="install" style="flex-direction:row;align-items:center;gap:14px"><span class="logo" style="width:46px;height:46px;font-size:20px;border-radius:14px">V</span><span class="grow"><b style="font-weight:500;font-size:16px">Install the Veda Vidya app</b><br><span class="small muted">Add it to your home screen</span></span>${svg("download")}</button>`:""}
+   </div>`; }
 function bindLogin(){
   $("#eye").onclick=()=>{ const p=$("#p"); const show=p.type==="password"; p.type=show?"text":"password"; $("#eye").textContent=show?"Hide":"Show"; };
   $("#loginForm").onsubmit=e=>{ e.preventDefault();
     const u=$("#u").value.trim().toLowerCase(), p=$("#p").value, err=$("#err");
     if(!u||!p){ err.textContent="Enter your username and password."; err.hidden=false; return; }
     if(u!==STUDENT.login.user||p!==STUDENT.login.pass){ err.textContent="Username or password is incorrect. Try student / veda123."; err.hidden=false; return; }
-    state.loggedIn=true; store.set("vv_login","1"); state.stack=[{name:"reports",params:{}}]; render(); toast(`Welcome, ${STUDENT.first}!`);
+    state.loggedIn=true; store.set("vv_login","1"); state.stack=[{name:"reports",params:{}}]; state.anim="fade"; render(); toast(`Welcome, ${STUDENT.first}!`);
   };
 }
 
@@ -951,6 +1026,7 @@ const SCREENS = {
      ${rowItem("trophy","Weak topics improving",`${DPP_TOPICS.filter(t=>t.status!=="weak").length} of ${DPP_TOPICS.length} topics`,'data-tab="dpp"')}
      ${rowItem("heart","Wellbeing",`Counselling on ${WELLBEING.session}`,go("wellbeing"))}
      ${rowItem("bell","Notifications",`${state.notifs.filter(n=>n.unread).length} unread`,'data-act="notifs"')}
+     ${canInstall()?rowItem("download","Install app","Add Veda Vidya to your home screen",'data-act="install"'):""}
    </div></div>
    <button class="btn block light" data-act="logout">${svg("logout")} Log out</button>`;
  }},
@@ -978,13 +1054,23 @@ function replyAI(html){
   setTimeout(()=>{ state.chat=state.chat.filter(m=>!m.typing); state.chat.push({t:html}); if(cur().name==="ai") render(); }, 1100);
 }
 const ACTIONS = {
-  download(t,e){
-    e.stopPropagation();
+  download(t){
     const k=t.dataset.kind; const label={parent:"Parent Report",faculty:"Faculty Report",wellbeing:"Wellbeing Report",notes:t.dataset.label}[k];
-    const target={parent:["parentReport",{id:t.dataset.id}],faculty:["facultyReport",{id:t.dataset.id}],wellbeing:["wellbeing",{}]}[k];
-    if(target && cur().name!==target[0]) nav(target[0],target[1]);
-    toast(`Preparing ${label} PDF…`); setTimeout(()=>{ try{ window.print(); }catch(err){} }, 400);
+    const tileC={parent:"t-orange",faculty:"t-blue",wellbeing:"t-pink",notes:"t-green"}[k];
+    const pages={parent:2,faculty:3,wellbeing:2,notes:2}[k];
+    state.pendingDl={k,id:t.dataset.id,label};
+    openSheet(`<div class="file"><span class="ficon ${tileC}">PDF</span><div class="grow"><h3 style="font-size:19px">${esc(label)}</h3><p class="small muted">${STUDENT.name} · ${pages} pages · PDF</p></div></div>
+      <button class="btn block" data-act="dlconfirm">${svg("download")} Download PDF</button>
+      <button class="btn block light" style="background:var(--bg)" data-act="closesheet">Cancel</button>`);
   },
+  dlconfirm(){
+    const {k,id,label}=state.pendingDl; closeSheet();
+    const target={parent:["parentReport",{id}],faculty:["facultyReport",{id}],wellbeing:["wellbeing",{}]}[k];
+    if(target && cur().name!==target[0]) nav(target[0],target[1]);
+    toast(`Preparing ${label}…`); setTimeout(()=>{ try{ window.print(); }catch(err){} }, 450);
+  },
+  closesheet(){ closeSheet(); },
+  install(){ doInstall(); },
   exam(t){ state.examId=t.dataset.id; render(); },
   qbf(t){ state.qbFilter=t.dataset.v; render(); },
   attseg(t){ state.attSeg=t.dataset.v; render(); },
@@ -994,12 +1080,12 @@ const ACTIONS = {
   dppstart(){ state.dpp={answers:{},i:0,showHint:false,completed:false}; nav("dppQuiz"); },
   dppopt(t){ state.dpp.answers[state.dpp.i]=+t.dataset.v; render(); },
   dpphint(){ state.dpp.showHint=true; render(); },
-  dppprev(){ state.dpp.i--; state.dpp.showHint=false; render(); },
+  dppprev(){ state.dpp.i--; state.dpp.showHint=false; state.forceTop=true; state.anim="pop"; render(); },
   dppnext(){ const s=state.dpp; if(s.answers[s.i]===undefined){ toast("Choose an answer first."); return; }
-    if(s.i<DPP_TODAY.qs.length-1){ s.i++; s.showHint=false; render(); window.scrollTo(0,0); return; }
+    if(s.i<DPP_TODAY.qs.length-1){ s.i++; s.showHint=false; state.forceTop=true; state.anim="push"; render(); return; }
     s.score=DPP_TODAY.qs.reduce((a,q,i)=>a+(s.answers[i]===q.a?1:0),0); s.completed=true;
     if(!DPP_HISTORY.find(h=>h.today)) DPP_HISTORY.unshift({d:"21 Nov",t:DPP_TODAY.title,s:s.score,of:DPP_TODAY.qs.length,done:true,today:true});
-    state.stack=[{name:"dpp",params:{}},{name:"dppResult",params:{}}]; render(); window.scrollTo(0,0); toast("DPP submitted"); },
+    state.stack=[{name:"dpp",params:{}},{name:"dppResult",params:{}}]; state.anim="push"; render(); toast("DPP submitted"); },
   askq(t){ askAI(t.dataset.q, t.dataset.s, t.dataset.c); },
   readall(){ state.notifs.forEach(n=>n.unread=false); render(); },
   opennotif(t){ const n=state.notifs.find(x=>x.id===+t.dataset.id); n.unread=false; const [name,p]=n.go;
@@ -1008,5 +1094,34 @@ const ACTIONS = {
     nav(name,p); }
 };
 
+/* ============================== SHEET / INSTALL / SPLASH ============================== */
+function openSheet(html){ $("#toast").classList.remove("show"); $("#sheet").innerHTML=`<div class="sheet-wrap"><div class="scrim" data-act="closesheet"></div><div class="sheet" role="dialog" aria-modal="true"><span class="grab"></span>${html}</div></div>`; }
+function closeSheet(){ $("#sheet").innerHTML=""; }
+const inFrame = (()=>{ try{ return window.self!==window.top; }catch(e){ return true; } })();
+const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone===true;
+let installEvt=null;
+window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); installEvt=e; if(!state.loggedIn) render(); });
+window.addEventListener("appinstalled", ()=>{ installEvt=null; toast("Veda Vidya app installed"); render(); });
+function canInstall(){ return !standalone && !inFrame && "serviceWorker" in navigator && location.protocol.startsWith("http"); }
+function doInstall(){
+  if(installEvt){ installEvt.prompt(); installEvt.userChoice.finally(()=>{ installEvt=null; }); return; }
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  openSheet(`<div class="file"><span class="logo" style="width:56px;height:56px">V</span><div class="grow"><h3 style="font-size:19px">Install Veda Vidya</h3><p class="small muted">Opens full screen, like any other app</p></div></div>
+    <ol>${ios?`<li>Tap the <b style="font-weight:600">Share</b> button at the bottom of Safari.</li><li>Scroll down and tap <b style="font-weight:600">Add to Home Screen</b>.</li><li>Tap <b style="font-weight:600">Add</b>. The Veda Vidya icon appears on your home screen.</li>`
+      :`<li>Tap the <b style="font-weight:600">⋮ menu</b> at the top right of Chrome.</li><li>Tap <b style="font-weight:600">Install app</b> or <b style="font-weight:600">Add to Home screen</b>.</li><li>Tap <b style="font-weight:600">Install</b>. The Veda Vidya icon appears on your home screen.</li>`}</ol>
+    <button class="btn block" data-act="closesheet">Got it</button>`);
+}
+(function splash(){
+  let seen=false; try{ seen=sessionStorage.getItem("vv_splash")==="1"; sessionStorage.setItem("vv_splash","1"); }catch(e){}
+  if(seen) return; const sp=$("#splash"); sp.hidden=false;
+  setTimeout(()=>{ sp.classList.add("out"); setTimeout(()=>sp.hidden=true,450); }, 1500);
+})();
 render();
 </script>
+<script>
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+</script>
+</body>
+</html>
