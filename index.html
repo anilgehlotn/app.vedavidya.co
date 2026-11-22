@@ -1059,6 +1059,10 @@ const ACTIONS = {
     const tileC={parent:"t-orange",faculty:"t-blue",wellbeing:"t-pink",notes:"t-green"}[k];
     const pages={parent:2,faculty:3,wellbeing:2,notes:2}[k];
     state.pendingDl={k,id:t.dataset.id,label};
+    if(inFrame){ openSheet(`<div class="file"><span class="ficon ${tileC}">PDF</span><div class="grow"><h3 style="font-size:19px">${esc(label)}</h3><p class="small muted">${pages} pages · PDF</p></div></div>
+      <div class="callout">This preview page doesn't allow downloads. Open the installed Veda Vidya app to save the PDF to your phone.</div>
+      <button class="btn block" data-act="dlview">View the report instead</button>
+      <button class="btn block light" style="background:var(--bg)" data-act="closesheet">Close</button>`); return; }
     openSheet(`<div class="file"><span class="ficon ${tileC}">PDF</span><div class="grow"><h3 style="font-size:19px">${esc(label)}</h3><p class="small muted">${STUDENT.name} · ${pages} pages · PDF</p></div></div>
       <button class="btn block" data-act="dlconfirm">${svg("download")} Download PDF</button>
       <button class="btn block light" style="background:var(--bg)" data-act="closesheet">Cancel</button>`);
@@ -1067,9 +1071,12 @@ const ACTIONS = {
     const {k,id,label}=state.pendingDl; closeSheet();
     const target={parent:["parentReport",{id}],faculty:["facultyReport",{id}],wellbeing:["wellbeing",{}]}[k];
     if(target && cur().name!==target[0]) nav(target[0],target[1]);
-    toast(`Preparing ${label}…`); setTimeout(()=>{ try{ window.print(); }catch(err){} }, 450);
+    setTimeout(()=>makePdf(label), target?380:60);
   },
   closesheet(){ closeSheet(); },
+  dlview(){ const {k,id}=state.pendingDl; closeSheet();
+    const target={parent:["parentReport",{id}],faculty:["facultyReport",{id}],wellbeing:["wellbeing",{}]}[k];
+    if(target && cur().name!==target[0]) nav(target[0],target[1]); },
   install(){ doInstall(); },
   exam(t){ state.examId=t.dataset.id; render(); },
   qbf(t){ state.qbFilter=t.dataset.v; render(); },
@@ -1095,6 +1102,31 @@ const ACTIONS = {
 };
 
 /* ============================== SHEET / INSTALL / SPLASH ============================== */
+/* real PDF file: renders the current report or notes screen to A4 pages and saves it */
+let pdfLib=null;
+function loadPdfLib(){
+  if(window.html2pdf) return Promise.resolve();
+  return pdfLib ??= new Promise((ok,fail)=>{ const sc=document.createElement("script");
+    sc.src=inFrame?"https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js":"vendor/html2pdf.bundle.min.js"; sc.onload=ok; sc.onerror=()=>{pdfLib=null;fail();}; document.head.appendChild(sc); });
+}
+async function makePdf(label){
+  toast(`Preparing ${label}…`);
+  try{
+    await loadPdfLib(); await (document.fonts?.ready||Promise.resolve());
+    const src=$("#view"); const box=document.createElement("div");
+    box.style.cssText="position:fixed;left:-10000px;top:0;width:720px;background:#fff;padding:0;";
+    const clone=src.cloneNode(true); clone.className=""; clone.removeAttribute("id");
+    clone.style.cssText="display:flex;flex-direction:column;gap:16px;padding:0;background:#fff";
+    clone.querySelectorAll(".no-print,.linkbtn,.chips,.rbtn,[data-act='download']").forEach(n=>n.remove());
+    box.appendChild(clone); document.body.appendChild(box);
+    const file=`${STUDENT.name.replace(/\s+/g,"_")}_${label.replace(/[^A-Za-z0-9]+/g,"_")}.pdf`;
+    await html2pdf().set({ margin:[10,10,12,10], filename:file, image:{type:"jpeg",quality:0.95},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff",windowWidth:720},
+      jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},
+      pagebreak:{mode:["css","legacy"],avoid:["section",".topic",".q","tr",".barline",".tile"]} }).from(clone).save();
+    box.remove(); toast(`${label} saved to Downloads`);
+  }catch(e){ console.warn(e); toast("Couldn't create the PDF. Check your internet connection and try again."); }
+}
 function openSheet(html){ $("#toast").classList.remove("show"); $("#sheet").innerHTML=`<div class="sheet-wrap"><div class="scrim" data-act="closesheet"></div><div class="sheet" role="dialog" aria-modal="true"><span class="grab"></span>${html}</div></div>`; }
 function closeSheet(){ $("#sheet").innerHTML=""; }
 const inFrame = (()=>{ try{ return window.self!==window.top; }catch(e){ return true; } })();
