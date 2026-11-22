@@ -291,6 +291,41 @@ tr:last-child td{border-bottom:0}
 
 .toast{position:absolute;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(16px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:50;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* printable A4 documents (rendered off-screen into the PDF) */
+.pdfdoc{--pc:#3d2f7a;--pc-soft:#f1eefb;--pc-line:#ddd6f3;width:703px;background:#fff;color:#1d1b26;font-family:var(--f);font-size:13px;line-height:1.5;-webkit-user-select:text;user-select:text}
+.pdfdoc h1{font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.2}
+.pdfdoc h2{font-size:16px;font-weight:700;color:var(--pc);margin:16px 0 6px;letter-spacing:0}
+.pdfdoc h3{font-size:13px;font-weight:700;color:var(--pc);margin:10px 0 6px}
+.pdfdoc p{margin:0 0 8px}
+.pdfdoc ul{margin:4px 0 8px;padding-left:18px}
+.pdfdoc li{margin-bottom:5px}
+.pdfdoc .titlebox{background:var(--pc);color:#fff;text-align:center;padding:14px 16px;margin-bottom:10px}
+.pdfdoc .titlebox h1{color:#fff;font-size:21px;text-transform:uppercase}
+.pdfdoc .titlebox p{margin:4px 0 0;font-size:13px;opacity:.9}
+.pdfdoc table{width:100%;border-collapse:collapse;font-size:12px;margin:4px 0 10px}
+.pdfdoc th,.pdfdoc td{border:1px solid var(--pc-line);padding:6px 8px;text-align:left;vertical-align:top}
+.pdfdoc th{background:var(--pc);color:#fff;font-weight:600;font-size:11.5px;text-transform:none;letter-spacing:0;border-color:var(--pc)}
+.pdfdoc .info td:nth-child(odd){background:var(--pc-soft);font-weight:600;width:17%}
+.pdfdoc .bars{display:grid;grid-template-columns:200px 1fr 92px;gap:7px 10px;align-items:center;margin:6px 0 10px;font-size:12px}
+.pdfdoc .bars .track{height:16px;background:var(--pc-soft);border:1px solid var(--pc-line)}
+.pdfdoc .bars .track i{display:block;height:100%}
+.pdfdoc .bars b{font-weight:700}
+.pdfdoc .concl{background:var(--pc-soft);border-left:4px solid var(--pc);padding:10px 14px;margin:6px 0 12px}
+.pdfdoc .note{background:#fff6e5;border-left:4px solid #d18a1c;padding:10px 14px;margin:6px 0 12px}
+.pdfdoc .reading{background:#f3f4f8;border-left:4px solid var(--pc);padding:10px 14px;margin:8px 0 12px}
+.pdfdoc .boxes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0}
+.pdfdoc .boxes div{border:1px solid var(--pc-line);border-radius:6px;padding:8px;text-align:center}
+.pdfdoc .boxes b{display:block;font-size:20px}
+.pdfdoc .boxes span{font-size:11px;color:#5b5770}
+.pdfdoc .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pdfdoc .two > div{background:#eef7f0;border-left:4px solid #2e8b57;padding:8px 12px}
+.pdfdoc .pill{display:inline-block;padding:1px 8px;border-radius:9px;font-size:10.5px;font-weight:700;color:#fff;white-space:nowrap}
+.pdfdoc .pill.high{background:#c8463d}.pdfdoc .pill.med{background:#d18a1c}.pdfdoc .pill.ok{background:#2e8b57}
+.pdfdoc .mbar{height:7px;background:#eceaf3;border-radius:4px;overflow:hidden;width:90px}
+.pdfdoc .mbar i{display:block;height:100%}
+.pdfdoc .sig{font-size:12px;margin-top:10px}
+.pdfdoc .small{font-size:11px;color:#5b5770}
+.pdfdoc .pb{page-break-before:always}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 @media (max-width:360px){.hero h2{font-size:30px}.plan{grid-template-columns:1fr}.plan .tall{grid-row:auto;min-height:0}.stat3 .v{font-size:21px}}
 @media print{html,body,#device,#app,.screen{height:auto!important;overflow:visible!important;position:static!important;border:0!important;box-shadow:none!important;width:auto!important}.statusbar,.splash,.sheet-wrap,.hdr,.nav,.composer,.toast,.no-print{display:none!important}#view{padding:0!important}body{background:#fff}.doc-head{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
@@ -824,7 +859,7 @@ const ACTIONS = {
     const {k,id,label}=state.pendingDl; closeSheet();
     const target={parent:["parentReport",{id}],faculty:["facultyReport",{id}],wellbeing:["wellbeing",{}]}[k];
     if(target && cur().name!==target[0]) nav(target[0],target[1]);
-    setTimeout(()=>makePdf(label), target?380:60);
+    setTimeout(()=>makePdf(label, state.pendingDl), target?380:60);
   },
   closesheet(){ closeSheet(); },
   dlview(){ const {k,id}=state.pendingDl; closeSheet();
@@ -855,30 +890,130 @@ const ACTIONS = {
 };
 
 /* ============================== SHEET / INSTALL / SPLASH ============================== */
-/* real PDF file: renders the current report or notes screen to A4 pages and saves it */
+/* ---------- printable documents that follow the institute's report formats ---------- */
+const PDF_COL = p => p>=75?"#2e8b57":p>=50?"#d18a1c":"#c8463d";
+const pdfBars = rows => `<div class="bars">${rows.map(([l,v,m,c])=>{const p=Math.floor(v/m*100+1e-9);return `<span>${l}</span><span class="track"><i style="width:${p}%;background:${c||PDF_COL(p)}"></i></span><b>${c?`${p}%`:`${v} / ${m} (${p}%)`}</b>`}).join("")}</div>`;
+function pdfParent(e){
+  const sp=pct(e.score,e.max); const subj=e.subjectLabel||e.subject; const ex=e.examLabel||e.name;
+  return `<div class="pdfdoc">
+   <div class="titlebox"><h1>Veda Vidya Institute – Parent Conclusion Report</h1><p>Class VIII · ${esc(subj)} · ${esc(ex)}</p></div>
+   <table class="info"><tr><td>Student</td><td>${STUDENT.name}</td><td>Class</td><td>${STUDENT.cls}</td></tr>
+     <tr><td>Examination</td><td>${esc(ex)}</td><td>Marks obtained</td><td>${e.score} / ${e.max} (${sp}%)</td></tr>
+     <tr><td>Exam date</td><td>${fmtDate(e.date).replace(/^(\d+) (\w+)/,(m,d,mo)=>`${d} ${MONTHS_L[MONTHS.indexOf(mo)]}`)}</td><td>Subject</td><td>${esc(subj)}</td></tr></table>
+   <p>Dear Parent/Guardian of ${STUDENT.name},</p>
+   <p>Thank you for your support. This note summarises ${STUDENT.first}'s ${esc(e.name.replace(/ – .*/,""))} on <i>${esc(e.name.replace(/^.*? – /,""))}</i> and what happens next. The full Student Performance Report has the question-wise detail.</p>
+   <h2>Overall result</h2><p>${e.overall}</p>
+   <h3>Marks by section</h3>${pdfBars(e.sections.map(x=>[esc(x[0]),x[1],x[2]]))}
+   <h2>What went well</h2><ul>${e.wentWell.map(x=>`<li>${x}</li>`).join("")}</ul>
+   <h2>Areas we will work on together</h2><ul>${e.workOn.map(x=>`<li>${x}</li>`).join("")}</ul>
+   <h2>Our next steps</h2><ul>${e.nextSteps.map(x=>`<li>${x}</li>`).join("")}</ul>
+   <h2>How you can help at home</h2><ul>${e.helpHome.map(x=>`<li>${x}</li>`).join("")}</ul>
+   <h2>Conclusion</h2><div class="concl">${e.conclusion}</div>
+   <p class="sig">Warm regards,<br>Academic Coordinator · Veda Vidya Institute</p></div>`;
+}
+function pdfFaculty(e){
+  const sp=pct(e.score,e.max), lost=e.max-e.score;
+  const skills=e.skills||e.sections.map(x=>[x[0],"",x[2],x[1]]);
+  const qs=e.questions||[];
+  const lostBy=e.lostBy||[];
+  return `<div class="pdfdoc">
+   <h1 style="color:var(--pc)">${esc(e.subject)} ${esc(e.short.includes("Half")?"Half-Yearly":"Unit Test")}: Improvement Plan for Faculty</h1>
+   <p class="small" style="margin-top:4px">${esc(e.name)} (${fmtDate(e.date)}) | ${e.max} marks | Student: <b>${STUDENT.name}</b>, Class ${STUDENT.cls}, Roll ${STUDENT.roll} | Score: <b>${e.score}/${e.max} (${sp}%)</b> | Class average: ${e.classAvg}%</p>
+   <div class="note"><b>Purpose:</b> a question-by-question review of ${STUDENT.first}'s answer script, what went wrong in each lost mark, and the action faculty will take before the retest. Parents receive a simpler Parent Conclusion Report.</div>
+   <h2>1. What the paper tested, and how ${STUDENT.first} did</h2>
+   <table><tr><th>Skill tested</th><th>Questions</th><th>Marks</th><th>Scored</th><th>%</th><th></th></tr>
+    ${skills.map(r=>{const p=Math.round(r[3]/r[2]*100);return `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${r[2]}</td><td>${r[3]}</td><td>${p}%</td><td><div class="mbar"><i style="width:${p}%;background:${PDF_COL(p)}"></i></div></td></tr>`}).join("")}
+    <tr><td><b>Total</b></td><td></td><td><b>${e.max}</b></td><td><b>${e.score}</b></td><td><b>${Math.round(sp)}%</b></td><td></td></tr></table>
+   ${lostBy.length?`<h3>Where the ${lost} marks were lost</h3><div class="boxes">${lostBy.map(([l,v,c])=>`<div><b style="color:${c}">${Math.round(v/lost*1000)/10}%</b><span>${l} (${v} mark${v>1?"s":""})</span></div>`).join("")}</div>
+   <div class="reading"><b>Reading.</b> Most lost marks are one idea: upthrust explained through density instead of the water pushed aside. Two marks were parts left blank, the cheapest gain, which needs exam-handling practice rather than new teaching. Written explanations and MCQs were strong.</div>`:""}
+   ${qs.length?`<h2>2. Question-by-question review</h2>
+   <table><tr><th style="width:52px">Q</th><th>Topic</th><th style="width:52px">Marks</th><th>What happened</th><th>Faculty action</th></tr>
+    ${qs.map(q=>{const full=q.s===q.m;return `<tr${full?"":` style="background:${q.pr==="High"?"#fdf0ef":"#fff8ea"}"`}><td><b>${q.q}</b></td><td>${esc(q.t)}</td><td>${q.s}/${q.m}<br>${full?`<span class="pill ok">Full</span>`:`<span class="pill ${q.pr==="High"?"high":"med"}">${q.pr}</span>`}</td>
+      <td>${esc(q.note)}${q.idea?`<br><span class="small"><b>Correct idea:</b> ${esc(q.idea)}</span>`:""}</td><td>${q.act?esc(q.act):"Keep practising; no action needed."}</td></tr>`}).join("")}</table>`:""}
+   <h2>${qs.length?3:2}. Misconceptions to address</h2>
+   <table><tr><th>Error seen (Q)</th><th>Why it happened</th><th>Quick classroom fix</th><th>Priority</th></tr>
+    ${e.weak.map(w=>`<tr><td><b>${esc(w.t)}</b><br><span class="small">${esc(w.q)} · ${w.lost} mark${w.lost>1?"s":""}</span></td><td>${esc(w.why)}</td><td>${esc(w.act)}</td><td><span class="pill ${w.pr==="High"?"high":"med"}">${w.pr}</span></td></tr>`).join("")}</table>
+   <div class="keep"><h3>Strengths to keep</h3><ul>${e.strong.map(x=>`<li><b>${esc(x.t)}</b> (${esc(x.q)}): ${esc(x.note)}</li>`).join("")}</ul></div>
+   <div class="keep"><h2>${qs.length?4:3}. Exam-handling and answer-writing</h2>
+   <div class="two"><div><b>To recover the “not attempted” marks</b><ul><li>Marks-to-minutes rule: about 1 minute per mark, plus a second pass for unfinished parts.</li><li>Attempt every part; a labelled diagram or definition earns marks even if the rest is unsure.</li></ul></div>
+     <div><b>To recover the writing marks</b><ul><li>Keyword bank: upthrust, displaced water, least count, balanced forces.</li><li>Frames: Definition → Reason → Example; for experiments Observation → Inference → Conclusion.</li></ul></div></div></div>
+   <div class="keep"><h2>${qs.length?5:4}. Improvement plan</h2>
+   <table><tr><th style="width:90px">When</th><th>Focus</th></tr>${e.plan.map(r=>`<tr><td><b>${r[0]}</b></td><td>${esc(r[1])}</td></tr>`).join("")}</table></div>
+   <h3>Target</h3><ul><li>${esc(e.target)}.</li><li>Parts left blank: none in the retest.</li><li>Progress is tracked through daily DPPs in the app and shared with parents after the retest.</li></ul>
+   <p class="small" style="margin-top:12px">Prepared by ${esc(e.faculty)} from the question paper and ${STUDENT.first}'s marked answer script. Marks lost are assigned to their main cause by judgment.</p></div>`;
+}
+function pdfWellbeing(){
+  const W=WELLBEING;
+  return `<div class="pdfdoc" style="font-size:14px">
+   <p><b>Veda Vidya Institute</b></p><p>${W.letter}</p>
+   <p><b>Subject: ${STUDENT.first}'s progress and wellbeing – November counselling</b></p>
+   <p>Dear Parents,</p>
+   <p>As part of our November counselling programme, ${STUDENT.first} (Class ${STUDENT.cls.replace(/\s*–\s*/," ")}) met our counsellor on ${W.session}. We would like to share how he is doing and invite you to meet us.</p>
+   <h3 style="color:#1d1b26;font-size:14px">What is going well</h3><ul>${W.good.map(x=>`<li>${x}</li>`).join("")}</ul>
+<div class="keep"><h2 style="color:#1d1b26">${STUDENT.first} is well supported at home and with friends</h2><p class="small">His own rating on each question (best possible answer = 100%)</p>
+   ${pdfBars(W.high.map(r=>[r[0],r[1],100,r[1]===100?"#2e9e3e":"#7cc68a"]))}</div>
+   <p class="small">${STUDENT.first}'s answers on his counselling form, ${W.session}</p>
+   <p>Each bar shows ${STUDENT.first}'s own answer on his counselling form as a percentage: the best possible answer counts as 100%, the next 75%, then 50% and 25%. He gave the best possible answer for support from home, getting along with classmates and having time to relax.</p>
+   <h3 style="color:#1d1b26;font-size:14px">Where he needs a little support</h3>
+   <ul>${W.support.map(s=>`<li><b>${s[0]}.</b> ${s[1]}</li>`).join("")}</ul>
+<div class="keep"><h2 style="color:#1d1b26">Planning his study time is where ${STUDENT.first} needs most help</h2><p class="small">His own rating on each question (best possible answer = 100%)</p>
+   ${pdfBars(W.low.map(r=>[r[0],r[1],100,"#f0b440"]))}</div>
+   <p>These are the areas where he rated himself lowest, and where encouragement from us and from you will help him most.</p>
+   <h3 style="color:#1d1b26;font-size:14px">How you can help at home</h3><ul>${W.home.map(x=>`<li>${x}</li>`).join("")}</ul>
+   <h3 style="color:#1d1b26;font-size:14px">Let us meet</h3>
+   <p>We would be glad to talk with you about how we can support ${STUDENT.first} together at our parent-teacher meeting on Sunday, 22 November, 10:00 AM – 1:00 PM.</p>
+   <p>Thank you for your support. We look forward to seeing ${STUDENT.first} grow this year.</p>
+   <p class="sig" style="font-size:14px">Warm regards,<br><b>Counsellor, Veda Vidya Institute</b></p></div>`;
+}
+const PDF_DOCS = {
+  parent:{ band:"Parent Conclusion Report", html:s=>pdfParent(EXAMS.find(x=>x.id===s.id)), foot:s=>{const e=EXAMS.find(x=>x.id===s.id);return `Parent Conclusion Report · ${STUDENT.name} · Class VIII ${e.subject}`;} },
+  faculty:{ band:"Faculty Improvement Plan", html:s=>pdfFaculty(EXAMS.find(x=>x.id===s.id)), foot:s=>{const e=EXAMS.find(x=>x.id===s.id);return `Faculty Improvement Plan · ${STUDENT.name} · Class VIII ${e.subject}`;} },
+  wellbeing:{ band:"Letter to Parents", html:()=>pdfWellbeing(), foot:()=>`Letter to Parents – ${STUDENT.name}` }
+};
+
+/* real PDF file: renders the report (in the institute's format) or the current notes screen to A4 pages and saves it */
 let pdfLib=null;
 function loadPdfLib(){
   if(window.html2pdf) return Promise.resolve();
   return pdfLib ??= new Promise((ok,fail)=>{ const sc=document.createElement("script");
     sc.src=inFrame?"https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js":"vendor/html2pdf.bundle.min.js"; sc.onload=ok; sc.onerror=()=>{pdfLib=null;fail();}; document.head.appendChild(sc); });
 }
-async function makePdf(label){
+async function makePdf(label, dl){
   toast(`Preparing ${label}…`);
   try{
     await loadPdfLib(); await (document.fonts?.ready||Promise.resolve());
-    const src=$("#view"); const box=document.createElement("div");
-    box.style.cssText="position:fixed;left:-10000px;top:0;width:720px;background:#fff;padding:0;";
-    const clone=src.cloneNode(true); clone.className=""; clone.removeAttribute("id");
-    clone.style.cssText="display:flex;flex-direction:column;gap:16px;padding:0;background:#fff";
-    clone.querySelectorAll(".no-print,.linkbtn,.chips,.rbtn,[data-act='download']").forEach(n=>n.remove());
-    box.appendChild(clone); document.body.appendChild(box);
+    const doc = dl && PDF_DOCS[dl.k];
+    const box=document.createElement("div");
+    box.style.cssText="position:fixed;left:-10000px;top:0;width:703px;background:#fff;";
+    let el;
+    if(doc){ box.innerHTML=doc.html(dl); el=box.firstElementChild; }
+    else {
+      el=$("#view").cloneNode(true); el.className="pdfdoc"; el.removeAttribute("id");
+      el.style.cssText="display:flex;flex-direction:column;gap:14px;padding:0;";
+      el.querySelectorAll(".no-print,.linkbtn,.chips,.rbtn,[data-act='download']").forEach(n=>n.remove());
+      box.appendChild(el);
+    }
+    document.body.appendChild(box);
     const file=`${STUDENT.name.replace(/\s+/g,"_")}_${label.replace(/[^A-Za-z0-9]+/g,"_")}.pdf`;
-    await html2pdf().set({ margin:[10,10,12,10], filename:file, image:{type:"jpeg",quality:0.95},
-      html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff",windowWidth:720},
+    const band = doc ? doc.band : label;
+    const foot = doc ? doc.foot(dl) : `${label} · ${STUDENT.name} · Veda Vidya Institute`;
+    await html2pdf().set({ margin:[20,12,16,12], filename:file, image:{type:"jpeg",quality:0.96},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff",windowWidth:703,logging:false},
       jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},
-      pagebreak:{mode:["css","legacy"],avoid:["section",".topic",".q","tr",".barline",".tile"]} }).from(clone).save();
+      pagebreak:{mode:["css","legacy"],avoid:[".keep","tr","li",".bars",".boxes",".two",".concl",".titlebox",".info","h2","h3",".topic",".q",".tile",".barline"]} })
+      .from(el).toPdf().get("pdf").then(pdf=>{
+        const n=pdf.internal.getNumberOfPages();
+        for(let i=1;i<=n;i++){
+          pdf.setPage(i);
+          pdf.setFillColor(61,47,122); pdf.rect(0,0,210,13,"F");
+          pdf.setTextColor(255,255,255); pdf.setFont("helvetica","bold"); pdf.setFontSize(10.5); pdf.text("VEDA VIDYA INSTITUTE",12,8.4);
+          pdf.setFont("helvetica","normal"); pdf.setFontSize(8.5); pdf.text(band,198,8.4,{align:"right"});
+          pdf.setDrawColor(61,47,122); pdf.setLineWidth(0.3); pdf.line(12,284,198,284);
+          pdf.setTextColor(90,90,100); pdf.setFontSize(8); pdf.text(foot,12,289); pdf.text(`Page ${i} of ${n}`,198,289,{align:"right"});
+        }
+      }).save();
     box.remove(); toast(`${label} saved to Downloads`);
-  }catch(e){ console.warn(e); toast("Couldn't create the PDF. Check your internet connection and try again."); }
+  }catch(e){ console.warn(e); toast("Couldn't create the PDF. Please try again."); }
 }
 function openSheet(html){ $("#toast").classList.remove("show"); $("#sheet").innerHTML=`<div class="sheet-wrap"><div class="scrim" data-act="closesheet"></div><div class="sheet" role="dialog" aria-modal="true"><span class="grab"></span>${html}</div></div>`; }
 function closeSheet(){ $("#sheet").innerHTML=""; }
