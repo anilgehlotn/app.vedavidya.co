@@ -50,7 +50,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .screen{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none;display:flex;flex-direction:column}
 .screen::-webkit-scrollbar{display:none}
 .statusbar{display:none}
-@media (min-width:640px){
+@media (min-width:700px) and (hover:hover) and (pointer:fine) and (display-mode:browser){
   body{background:radial-gradient(circle at 30% 20%,#e9e4ff,#d9d2fb 60%,#cfc6f7);display:grid;place-items:center}
   #device{width:390px;height:min(844px,calc(100% - 32px));border-radius:54px;border:11px solid #111118;box-shadow:0 30px 80px rgba(40,20,90,.35),0 0 0 2px #2a2a33}
   .statusbar{display:flex;position:absolute;z-index:40;top:0;left:0;right:0;height:46px;align-items:center;justify-content:space-between;padding:0 30px 0 34px;font-size:15px;font-weight:600;pointer-events:none}
@@ -687,7 +687,6 @@ function Login(){ return `<div class="screen login">
      <div class="field"><label for="p">Password</label><div class="inp"><input id="p" type="password" autocomplete="current-password" placeholder="Enter your password"><button type="button" class="eye" id="eye">Show</button></div></div>
      <p class="err" id="err" hidden></p>
      <button class="btn block" type="submit">Log in</button>
-     <p class="demo-hint">Demo login: <code>student</code> · <code>veda123</code></p>
    </form>
    ${canInstall()?`<button class="tile t-white" data-act="install" style="flex-direction:row;align-items:center;gap:14px"><span class="logo" style="width:46px;height:46px;font-size:20px;border-radius:14px">V</span><span class="grow"><b style="font-weight:500;font-size:16px">Install the Veda Vidya app</b><br><span class="small muted">Add it to your home screen</span></span>${svg("download")}</button>`:""}
    </div>`; }
@@ -696,7 +695,7 @@ function bindLogin(){
   $("#loginForm").onsubmit=e=>{ e.preventDefault();
     const u=$("#u").value.trim().toLowerCase(), p=$("#p").value, err=$("#err");
     if(!u||!p){ err.textContent="Enter your username and password."; err.hidden=false; return; }
-    if(u!==STUDENT.login.user||p!==STUDENT.login.pass){ err.textContent="Username or password is incorrect. Try student / veda123."; err.hidden=false; return; }
+    if(u!==STUDENT.login.user||p!==STUDENT.login.pass){ err.textContent="Username or password is incorrect. Please try again."; err.hidden=false; return; }
     state.loggedIn=true; store.set("vv_login","1"); state.stack=[{name:"reports",params:{}}]; state.anim="fade"; render(); toast(`Welcome, ${STUDENT.first}!`);
   };
 }
